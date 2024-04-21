@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "three": "^0.147.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "stats-js": "^1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.5",

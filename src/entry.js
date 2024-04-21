@@ -6,44 +6,70 @@
  * handles window resizes.
  * 
  */
+import WebGL from "three/addons/capabilities/WebGL.js";
+import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import Stats from "stats-js/src/Stats.js";
 
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from 'three';
-import SeedScene from './objects/Scene.js';
+import SeedScene from "./objects/Scene.js";
 
-const scene = new Scene();
-const camera = new PerspectiveCamera();
-const renderer = new WebGLRenderer({antialias: true});
-const seedScene = new SeedScene();
+// Main entry point
+function createCanvas() {
+    // renderer
+    const renderer = new WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x7ec0ee, 1);
 
-// scene
-scene.add(seedScene);
+    // stats
+    var stats = new Stats();
+    stats.showPanel(1);
+    document.body.appendChild(stats.dom);
 
-// camera
-camera.position.set(6,3,-10);
-camera.lookAt(new Vector3(0,0,0));
+    // scene
+    const scene = new Scene();
+    const seedScene = new SeedScene(renderer); // TODO: Rename SeedScene
+    scene.add(seedScene);
 
-// renderer
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x7ec0ee, 1);
+    // camera
+    const camera = new PerspectiveCamera();
+    const controls = new OrbitControls(camera, renderer.domElement);
+    camera.position.set(2, 1, -2);
+    camera.lookAt(new Vector3(0, 0, 0));
 
-// render loop
-const onAnimationFrameHandler = (timeStamp) => {
-  renderer.render(scene, camera);
-  seedScene.update && seedScene.update(timeStamp);
-  window.requestAnimationFrame(onAnimationFrameHandler);
+    // render loop
+    const onAnimationFrameHandler = (timeStamp) => {
+        stats.begin();  
+        
+        controls.update();
+        renderer.render(scene, camera);
+        seedScene.update && seedScene.update(timeStamp);
+        
+        stats.end();  
+        
+        window.requestAnimationFrame(onAnimationFrameHandler);
+    };
+    window.requestAnimationFrame(onAnimationFrameHandler);
+
+    // resize
+    const windowResizeHanlder = () => {
+        const { innerHeight, innerWidth } = window;
+        renderer.setSize(innerWidth, innerHeight);
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        seedScene.resize(innerWidth, innerHeight);
+    };
+    windowResizeHanlder();
+    window.addEventListener("resize", windowResizeHanlder);
+
+    // dom
+    document.body.style.margin = 0;
+    document.body.appendChild(renderer.domElement);
 }
-window.requestAnimationFrame(onAnimationFrameHandler);
 
-// resize
-const windowResizeHanlder = () => { 
-  const { innerHeight, innerWidth } = window;
-  renderer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-};
-windowResizeHanlder();
-window.addEventListener('resize', windowResizeHanlder);
-
-// dom
-document.body.style.margin = 0;
-document.body.appendChild( renderer.domElement );
+// Run the app
+if (WebGL.isWebGLAvailable()) {
+    createCanvas();
+} else {
+    const warning = WebGL.getWebGLErrorMessage();
+    document.body.appendChild(warning);
+}
