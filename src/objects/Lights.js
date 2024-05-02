@@ -1,4 +1,4 @@
-import { Group, SpotLight, PointLight, AmbientLight, HemisphereLight, Color } from "three";
+import { Group, SpotLight, PointLight, AmbientLight, HemisphereLight} from "three";
 
 export default class BasicLights extends Group {
     constructor(...args) {

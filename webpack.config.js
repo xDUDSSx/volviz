@@ -1,6 +1,8 @@
 const path = require('path');
 const pkg = require('./package.json');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin'); // This fixes some missing import issues with WebPack 5
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 const buildPath = './build/';
 
 module.exports = {
@@ -25,7 +27,14 @@ module.exports = {
       }
     ]
   },
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, 'src/'),
+      '#': path.resolve(__dirname, 'data/')
+    },
+  },
   plugins: [
-    new HtmlWebpackPlugin({'title': 'three-seed project'})
+    new HtmlWebpackPlugin({'title': 'volviz project'}),
+    new NodePolyfillPlugin()
   ]
 }
