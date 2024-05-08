@@ -1,4 +1,4 @@
-import { Group, SpotLight, PointLight, AmbientLight, HemisphereLight, Color } from "three";
+import { Group, SpotLight, PointLight, AmbientLight, HemisphereLight} from "three";
 
 export default class BasicLights extends Group {
     constructor(...args) {
@@ -16,6 +16,5 @@ export default class BasicLights extends Group {
         point.intensity = 0.5;
 
         this.add(point, ambi, hemi, dir);
-
     }
 }
