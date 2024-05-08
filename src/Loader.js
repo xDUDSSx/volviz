@@ -10,9 +10,9 @@ export default class Loader {
     constructor() {}
     
     static async loadCTHeadTexture() {
-        // const image = new THREE.ImageLoader().load(spingetfiddner);
-        // const texture = new THREE.TextureLoader().load(spingetfiddner);
-        
+        // PNGs are loaded using a third party png parser (pngjs).
+        // JS doesn't really have a reliable way to load image files of more unusual formats (like 16 bit depth)
+
         const pngOptions = {
             colorType: 0, // 0 for greyscale with no alpha
             inputColorType: 0, // same as output
@@ -26,48 +26,8 @@ export default class Loader {
             pngSlices.push(slice);
         }
 
-        let volumeTexture = this.create3DTextureFromPNGs(pngSlices);
-        return volumeTexture;
-
-        
-        // return this.textureFrom16BitGreyscalePNG(png);
-
-        // var canvas = document.createElement("canvas");
-        // var context = canvas.getContext("2d");
-
-        // const loader = new THREE.ImageBitmapLoader();
-        // loader.setOptions( { imageOrientation: "flipY", } );
-        // loader.load( spingetfiddner,
-        //     function ( imageBitmap ) { // onLoad callback
-        //         console.log(imageBitmap);
-        //         // We need to load individual image slices of the 3D volume.
-        //         // Apparently the only way to do this "natively" in JS is to render the image to a canvas and read back the pixel data
-        //         // Otherwise we'd need to parse the image byte data using a thirdparty png/jpg/whatever parser
-        //         // Three.js doesn't really read pixel data itself either, it passes a loaded HTMLImageElement to one of the WebGL texture load methods.
-
-        //         canvas.width = image.width;
-        //         canvas.height = image.height;
-        //         context.drawImage(imageBitmap, 0, 0);
-        //         var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-        //         // Now you can access pixel data from imageData.data.
-        //         // It's a one-dimensional array of RGBA values.
-        //         // Here's an example of how to get a pixel's color at (x,y)
-        //         var index = (y*imageData.width + x) * 4;
-        //         var red = imageData.data[index];
-        //         var green = imageData.data[index + 1];
-        //         var blue = imageData.data[index + 2];
-        //         var alpha = imageData.data[index + 3];
-        //     }, undefined,
-        //     function (err) { // onError callback
-        //         console.log("Failed to load image bitmap!", err); 
-        //     }
-        // );
-        
-        // console.log(image);
-        // console.log(texture);
-
-        // return texture;
+        let textureData = this.create3DTextureFromPNGs(pngSlices);
+        return textureData;
     }
 
     /**
@@ -86,7 +46,7 @@ export default class Loader {
                     if (error) {
                         console.error("[LOADER] Failed to parse PNG image from: " + url + "!\nError: ", error);
                     } else {
-                        console.log("[LOADER] Loaded image '" + url + "'");
+                        console.debug("[LOADER] Loaded image '" + url + "'");
                         resolve(data);
                     }
                 });
@@ -106,9 +66,15 @@ export default class Loader {
             throw Error("[LOADER] At least one PNG image is required to create a 3D texture!");
         }
 
+        // Loaded pngs are in the RGBA format even when they're greyscale
+        // A float array is used because in general integer formats are not "filterable" in WebGL (can't use trilinear interpolation)
+
         let depth = pngs.length;
         let width = pngs[0].width;
         let height = pngs[0].width;
+        
+        let dataMin = Number.POSITIVE_INFINITY;
+        let dataMax = 0;
 
         let pixelBufferF32 = new Float32Array(width * height * pngs.length);
         for (let z = 0; z < depth; z++) {
@@ -119,6 +85,8 @@ export default class Loader {
                 for (let x = 0; x < width; x++) {
                     let rVal = pngData[offsetPng + x*4];
                     pixelBufferF32[offset3d + x] = rVal;
+                    if (rVal < dataMin) dataMin = rVal;
+                    if (rVal > dataMax) dataMax = rVal;
                 }
             }
         }
@@ -132,19 +100,13 @@ export default class Loader {
         texture.unpackAlignment = 1;
         texture.needsUpdate = true;
 
-        return texture;
+        return {texture, dataMin, dataMax};
     }
 
     static textureFrom16BitGreyscalePNG(png) {
         let pixelBufferU16 = png.data;
         let pixelBufferF32 = this.uInt16ToFloat32Array(pixelBufferU16);
-        
-        //  It's important to note that different texture formats need to be sampled differently in glsl
-        //  namely: UI data uses "usampler", I data uses "isampler" and other data uses "sampler".
-        //  Also note that most formats might not actually be "texture filterable" which may cause issues with 3D texture interpolation
-        //  Due to this a conversion to a float array may be preferrable.
-        //  Also, the loaded array above is RRRA, not just R, the 3 channels are useless.
-
+    
         let texture = new THREE.DataTexture(pixelBufferF32, png.width, png.height,
             THREE.RedFormat,
             THREE.FloatType
@@ -160,23 +122,10 @@ export default class Loader {
             let offset4 = k*4*256;
             let offset1 = k*256;
             for (let i = 0; i < 256; i++) {
-                let rVal = input[offset4 + i*4]; 
-                
-                //input[offset4 + i*4+1] = 60000;
-                //input[offset4 + i*4+2] = 60000;
-                //input[offset4 + i*4+3] = 60000;
+                let rVal = input[offset4 + i*4];
                 output[offset1 + i] = rVal;
             }
         }
         return output;
-        /*
-        var incomingData = new Uint8Array(buffer); // create a uint8 view on the ArrayBuffer
-        var i, l = incomingData.length; // length, we need this for the loop
-        var outputData = new Float32Array(incomingData.length); // create the Float32Array for output
-        for (i = 0; i < l; i++) {
-            outputData[i] = (incomingData[i] - 128) / 128.0; // convert audio to float
-        }
-        return outputData; // return the Float32Array
-        */
     }
 }

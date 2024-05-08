@@ -11,7 +11,7 @@ import { WebGLRenderer, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "stats-js/src/Stats.js";
 
-import VolumeScene from "./objects/Scene.js";
+import VolumeWorld from "./VolumeWorld.js";
 
 // Main entry point
 function createCanvas() {
@@ -29,20 +29,21 @@ function createCanvas() {
     // camera
     const camera = new PerspectiveCamera();
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.zoomSpeed = 1;
     camera.position.set(4, 2, 2);
     camera.lookAt(new Vector3(0, 0, 0));
 
     // scene
-    const volumeScene = new VolumeScene(renderer);
+    const volumeWorld = new VolumeWorld(renderer);
 
     // render loop
     const onAnimationFrameHandler = (timeStamp) => {
         stats.begin();  
         
         controls.update();
-        volumeScene.update && volumeScene.update(timeStamp);
+        volumeWorld.update && volumeWorld.update(timeStamp);
 
-        volumeScene.render(renderer, camera);
+        volumeWorld.render(renderer, camera);
         
         stats.end();
         
@@ -57,7 +58,7 @@ function createCanvas() {
         renderer.setPixelRatio(window.devicePixelRatio);
         camera.aspect = innerWidth / innerHeight;
         camera.updateProjectionMatrix();
-        volumeScene.resize(innerWidth, innerHeight, renderer.getPixelRatio());
+        volumeWorld.resize(innerWidth, innerHeight, renderer.getPixelRatio());
     };
     windowResizeHanlder();
     window.addEventListener("resize", windowResizeHanlder);
