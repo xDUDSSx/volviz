@@ -1,17 +1,19 @@
 import * as THREE from "three";
 import BasicLights from "./objects/Lights.js";
-import Loader from "~/Loader.js";
+import Loader from "./Loader.js";
 
-import raymarchFragmentShader from "#/shaders/raymarcher.frag";
+import raymarchFragmentShader from "./shaders/raymarcher.frag";
 
-import positionVertexShader from "#/shaders/position.vert";
-import positionFragmentShader from "#/shaders/position.frag";
+import positionVertexShader from "./shaders/position.vert";
+import positionFragmentShader from "./shaders/position.frag";
 
 export default class VolumeWorld {
     /**
      * @param {THREE.WebGLRenderer} renderer
      */
-    constructor(renderer) {
+    constructor(renderer, settings) {
+        this.settings = settings;
+
         this.scene = new THREE.Scene();
         this.cubeScene = new THREE.Scene();
       
@@ -38,15 +40,20 @@ export default class VolumeWorld {
 
         this.raymarchingMaterial = new THREE.ShaderMaterial({
             uniforms: {
+                u_mode: { value: 0 },
+
+                u_volumeSamples: { value: 50 },
+                u_volumeInvertX: { value: false },
+                u_volumeInvertY: { value: true },
+                u_volumeInvertZ: { value: true },
+                u_volumeFlipYZ: { value: true },
+                u_volumeNoise: { value: 0.1 },
+
                 u_resolution: { value: new THREE.Vector2(1, 1) },
                 u_positionTexture: { value: this.positionTexture.texture },
                 u_volumeTexture: { value: undefined }, // To be loaded later
                 u_volumeMin: { value: 0 }, // To be set later
                 u_volumeMax: { value: 0 }, // To be set later
-                u_volumeInvertX: { value: false },
-                u_volumeInvertY: { value: true },
-                u_volumeInvertZ: { value: true },
-                u_volumeFlipYZ: { value: true }
             },
             vertexShader: positionVertexShader,
             fragmentShader: raymarchFragmentShader,
@@ -97,7 +104,11 @@ export default class VolumeWorld {
         renderer.render(this.scene, camera);
     }
 
-    update() {}
+    update() {
+        this.raymarchingMaterial.uniforms.u_mode.value = this.settings.mode;
+        this.raymarchingMaterial.uniforms.u_volumeSamples.value = this.settings.samples;
+        this.raymarchingMaterial.uniforms.u_volumeNoise.value = this.settings.noise;
+    }
 
     resize(width, height, pixelRatio = window.devicePixelRatio) {
         // console.log("Resize event: ", width, height, " Pixel ratio: ", pixelRatio);

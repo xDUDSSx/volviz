@@ -1,20 +1,13 @@
-/**
- * entry.js
- * 
- * This is the first file loaded. It sets up the Renderer, 
- * Scene and Camera. It also starts the render loop and 
- * handles window resizes.
- * 
- */
 import WebGL from "three/addons/capabilities/WebGL.js";
 import { WebGLRenderer, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "stats-js/src/Stats.js";
+import UI from "~/ui/UI.js";
 
-import VolumeWorld from "./VolumeWorld.js";
+import VolumeWorld from "./renderer/VolumeWorld.js";
 
 // Main entry point
-function createCanvas() {
+function createCanvas(settings) {
     // renderer
     const renderer = new WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -34,7 +27,7 @@ function createCanvas() {
     camera.lookAt(new Vector3(0, 0, 0));
 
     // scene
-    const volumeWorld = new VolumeWorld(renderer);
+    const volumeWorld = new VolumeWorld(renderer, settings);
 
     // render loop
     const onAnimationFrameHandler = (timeStamp) => {
@@ -68,9 +61,17 @@ function createCanvas() {
     document.body.appendChild(renderer.domElement);
 }
 
+class Settings {
+    mode = 1;
+    samples = 50;
+    noise = 0.1;
+}
+
 // Run the app
 if (WebGL.isWebGLAvailable()) {
-    createCanvas();
+    let settings = new Settings();
+    createCanvas(settings);
+    UI.createUI(settings);
 } else {
     const warning = WebGL.getWebGLErrorMessage();
     document.body.appendChild(warning);

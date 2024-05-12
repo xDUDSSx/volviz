@@ -1,0 +1,7 @@
+html {
+    overflow: hidden;
+}
+
+.tp-lblv_v { /* Make tweakpane a little wider*/
+    width: 200px !important;
+}

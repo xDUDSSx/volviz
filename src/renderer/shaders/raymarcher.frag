@@ -7,13 +7,17 @@ varying vec3 aPos;
 uniform vec2 u_resolution;
 uniform sampler2D u_positionTexture;
 
+uniform int u_mode;
+
 uniform sampler3D u_volumeTexture;
+uniform int u_volumeSamples;
 uniform float u_volumeMin;
 uniform float u_volumeMax;
 uniform bool u_volumeInvertX;
 uniform bool u_volumeInvertY;
 uniform bool u_volumeInvertZ;
 uniform bool u_volumeFlipYZ;
+uniform float u_volumeNoise;
 
 float map(float value, float min1, float max1, float min2, float max2) {
 	return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -105,17 +109,25 @@ void main() {
   float raySpanLen = length(raySpan);
   vec3 rayDir = normalize(raySpan);
 
-  int stepCount = 50;
+  int stepCount = u_volumeSamples;
   float longestSpan = length(vec3(2., 2., 2.));
   float stepSize = longestSpan / float(stepCount);
 
   // Randomly offset raydir to "dither" aliasing
   // https://www.marcusbannerman.co.uk/articles/VolumeRendering.html
   float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453);
-  stepSize += 0.1 * stepSize * random;
+  stepSize += u_volumeNoise * stepSize * random;
 
-  // vec4 color = raymarchAccumulate(rayDir, frontPos, stepSize, stepCount, raySpanLen);
-  vec4 color = raymarchAverage(rayDir, frontPos, stepSize, stepCount, raySpanLen);
+  vec4 color;
+  
+  switch (u_mode) {
+    case 0:
+      color = raymarchAccumulate(rayDir, frontPos, stepSize, stepCount, raySpanLen);
+      break;
+    case 1:
+      color = raymarchAverage(rayDir, frontPos, stepSize, stepCount, raySpanLen);
+      break;
+  }
 
   gl_FragColor = color; // Raymarched result
 

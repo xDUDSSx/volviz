@@ -2,6 +2,7 @@ const path = require('path');
 const pkg = require('./package.json');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin'); // This fixes some missing import issues with WebPack 5
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const buildPath = './build/';
 
@@ -27,7 +28,15 @@ module.exports = {
       },{
         test: /\.(glsl|frag|vert)$/,
         use: 'raw-loader',
-      }
+      },
+      {
+        test: /\.html$/i,
+        loader: "html-loader",
+      },
+      {
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
     ]
   },
   resolve: {
@@ -38,6 +47,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({'title': 'volviz project'}),
-    new NodePolyfillPlugin()
+    new NodePolyfillPlugin(),
+    new MiniCssExtractPlugin()
   ]
 }
