@@ -8,6 +8,11 @@ import positionVertexShader from "./shaders/position.vert";
 import positionFragmentShader from "./shaders/position.frag";
 
 export default class VolumeWorld {
+    settings;
+
+    scene;
+    cubeScene;
+
     /**
      * @param {THREE.WebGLRenderer} renderer
      */
@@ -60,8 +65,17 @@ export default class VolumeWorld {
             transparent: true
         });
 
-        // Load 3D data
-        Loader.loadCTHeadTexture().then((textureData) => {
+        const axesHelper = new THREE.AxesHelper(2);
+        this.scene.add(axesHelper);
+    }
+
+    loadCTHead(ui) {
+        let loadingCallback = (val) => {
+            ui.loadingButton.title = Math.round(val * 100) + " %";
+        };
+        Loader.loadCTHeadTexture(loadingCallback).then((textureData) => {
+            ui.loadingPane.hidden = true;
+            
             const boxWidth = 2;
             const boxHeight = 2;
             const boxDepth = 2;
@@ -71,21 +85,18 @@ export default class VolumeWorld {
             let backCube = new THREE.Mesh(box, this.positionShader);
             backCube.position.set(0, 0, 0);
             this.cubeScene.add(backCube);
-
+            
             let {texture: volumeTexture, dataMin, dataMax} = textureData;
             
             // Assign the loaded volume texture to the shader
             this.raymarchingMaterial.uniforms.u_volumeTexture.value = volumeTexture;
             this.raymarchingMaterial.uniforms.u_volumeMin.value = dataMin;
             this.raymarchingMaterial.uniforms.u_volumeMax.value = dataMax;
-
+            
             // Create the cube object for rendering front faces using the raymarcher
             let cube = new THREE.Mesh(box, this.raymarchingMaterial);
             this.scene.add(cube);
         });
-
-        const axesHelper = new THREE.AxesHelper(2);
-        this.scene.add(axesHelper);
     }
 
     /**

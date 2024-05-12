@@ -9,7 +9,7 @@ importFiles(require.context("#/cthead/", true, /\.png$/), cthead);
 export default class Loader {
     constructor() {}
     
-    static async loadCTHeadTexture() {
+    static async loadCTHeadTexture(progressCallback) {
         // PNGs are loaded using a third party png parser (pngjs).
         // JS doesn't really have a reliable way to load image files of more unusual formats (like 16 bit depth)
 
@@ -24,6 +24,7 @@ export default class Loader {
         for (let i = 0; i < cthead.length; i++) {
             let slice = await this.loadPNG(cthead[i].data.default, pngOptions);
             pngSlices.push(slice);
+            if (progressCallback) progressCallback(i / cthead.length);
         }
 
         let textureData = this.create3DTextureFromPNGs(pngSlices);

@@ -89,8 +89,21 @@ export default class DraggableTweakpane extends Pane {
     set height(value) {
         this.container.style.height = value + "px";
     }
+
+    get hidden() {
+        return super.hidden;
+    }
+    set hidden(value) {
+        super.hidden = value;
+        this.container.style.display = value ? "none" : "block";
+    }
     
-    #makeDraggable() {
+    dispose() {
+        super.dispose();
+        this.container.remove();
+    }
+
+    #makeDraggable() {  
         this.container.draggableTweakpane = this;
 
         let tweakpaneHeader = this.container.querySelector("button.tp-rotv_b");

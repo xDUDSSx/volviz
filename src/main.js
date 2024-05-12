@@ -6,6 +6,8 @@ import UI from "~/ui/UI.js";
 
 import VolumeWorld from "./renderer/VolumeWorld.js";
 
+let volumeWorld;
+
 // Main entry point
 function createCanvas(settings) {
     // renderer
@@ -27,7 +29,7 @@ function createCanvas(settings) {
     camera.lookAt(new Vector3(0, 0, 0));
 
     // scene
-    const volumeWorld = new VolumeWorld(renderer, settings);
+    volumeWorld = new VolumeWorld(renderer, settings);
 
     // render loop
     const onAnimationFrameHandler = (timeStamp) => {
@@ -71,7 +73,8 @@ class Settings {
 if (WebGL.isWebGLAvailable()) {
     let settings = new Settings();
     createCanvas(settings);
-    UI.createUI(settings);
+    let ui = new UI(settings);
+    volumeWorld.loadCTHead(ui);
 } else {
     const warning = WebGL.getWebGLErrorMessage();
     document.body.appendChild(warning);
