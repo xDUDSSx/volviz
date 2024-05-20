@@ -6,6 +6,7 @@
 
 .tp-rotv_b {
     user-select: none;
+    touch-action: none;
 }
 
 .tp-rotv_t {
