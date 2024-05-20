@@ -4,7 +4,7 @@ import Loader from "./Loader.js";
 
 import raymarchFragmentShader from "./shaders/raymarcher.frag";
 
-import positionVertexShader from "./shaders/position.vert";
+import basicVertexShader from "./shaders/basic.vert";
 import positionFragmentShader from "./shaders/position.frag";
 
 export default class VolumeWorld {
@@ -29,10 +29,14 @@ export default class VolumeWorld {
         const lights = new BasicLights();
         this.scene.add(lights);
 
-        this.positionShader = new THREE.ShaderMaterial({
-            vertexShader: positionVertexShader,
+        this.positionMaterial = new THREE.ShaderMaterial({
+            vertexShader: basicVertexShader,
             fragmentShader: positionFragmentShader,
-            side: THREE.BackSide
+            uniforms: {
+                u_resolution: { value: new THREE.Vector2(1, 1) },
+                u_projectionViewInverse: { value: new THREE.Matrix4() },
+            },
+            side: THREE.DoubleSide
         });
 
         this.positionTexture = new THREE.WebGLRenderTarget(rendererSize.x, rendererSize.y, {
@@ -44,6 +48,8 @@ export default class VolumeWorld {
         });
 
         this.raymarchingMaterial = new THREE.ShaderMaterial({
+            vertexShader: basicVertexShader,
+            fragmentShader: raymarchFragmentShader,
             uniforms: {
                 u_mode: { value: 0 },
 
@@ -60,9 +66,8 @@ export default class VolumeWorld {
                 u_volumeMin: { value: 0 }, // To be set later
                 u_volumeMax: { value: 0 }, // To be set later
             },
-            vertexShader: positionVertexShader,
-            fragmentShader: raymarchFragmentShader,
-            transparent: true
+            transparent: true,
+            side: THREE.BackSide
         });
 
         const axesHelper = new THREE.AxesHelper(2);
@@ -81,10 +86,10 @@ export default class VolumeWorld {
             const boxDepth = 2;
             const box = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
             
-            // Create the cube object for rendering the backfaces
-            let backCube = new THREE.Mesh(box, this.positionShader);
-            backCube.position.set(0, 0, 0);
-            this.cubeScene.add(backCube);
+            // Create the cube object for rendering the front faces
+            let frontCube = new THREE.Mesh(box, this.positionMaterial);
+            frontCube.position.set(0, 0, 0);
+            this.cubeScene.add(frontCube);
             
             let {texture: volumeTexture, dataMin, dataMax} = textureData;
             
@@ -93,7 +98,7 @@ export default class VolumeWorld {
             this.raymarchingMaterial.uniforms.u_volumeMin.value = dataMin;
             this.raymarchingMaterial.uniforms.u_volumeMax.value = dataMax;
             
-            // Create the cube object for rendering front faces using the raymarcher
+            // Create the cube object for rendering back faces using the raymarcher
             let cube = new THREE.Mesh(box, this.raymarchingMaterial);
             this.scene.add(cube);
         });
@@ -104,12 +109,21 @@ export default class VolumeWorld {
      * @param {THREE.PerspectiveCamera} camera
      */
     render(renderer, camera) {
-        // First pass render positions of the back side of the volume cube
+        // First pass: render positions of the front side of the volume cube
+        
+        // Pixels of the front faces of the cube are set to their world position.
+        // When the cameras near plane intersects the cube,
+        // the clipped region is filled by calculated near plane world positions when rendering backfaces of the cube. 
+        let viewMatrixInverse = new THREE.Matrix4().copy(camera.matrixWorld);
+        let projectionMatrixInverse = new THREE.Matrix4().copy(camera.projectionMatrixInverse);
+        let clipToWorldMatrix = viewMatrixInverse.multiply(projectionMatrixInverse);
+        this.positionMaterial.uniforms.u_projectionViewInverse.value = clipToWorldMatrix;
+        
         renderer.setRenderTarget(this.positionTexture);
         renderer.setClearAlpha(0); // Set clear alpha to 0 to avoid artefacts in the raymarcher later
         renderer.render(this.cubeScene, camera);
 
-        // Second pass render the front side of the volume cube with the raymarching shader.
+        // Second pass: render the back sides of the volume cube with the raymarching shader.
         renderer.setRenderTarget(null);
         renderer.setClearAlpha(1);
         renderer.render(this.scene, camera);
@@ -127,5 +141,6 @@ export default class VolumeWorld {
         let realHeight = height * pixelRatio;
         this.positionTexture.setSize(realWidth, realHeight);
         this.raymarchingMaterial.uniforms.u_resolution.value = new THREE.Vector2(realWidth, realHeight);
+        this.positionMaterial.uniforms.u_resolution.value = new THREE.Vector2(realWidth, realHeight);
     }
 }

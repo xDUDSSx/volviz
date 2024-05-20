@@ -1,4 +1,4 @@
-varying vec3 aPos;
+out vec3 aPos;
 
 void main() {
   vec4 mPosition = modelMatrix * vec4(position, 1.0);

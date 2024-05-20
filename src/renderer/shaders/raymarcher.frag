@@ -97,13 +97,13 @@ vec4 raymarchAverage(vec3 rayDir, vec3 startPos, float stepSize, int stepCount, 
 void main() {
   vec2 coords = gl_FragCoord.xy / u_resolution.xy;
 
-  // World position of the cube front side, is the current position of this fragment
-  vec3 frontPos = aPos.xyz;
+  // World position of the cube back side. It's the current position of this fragment.
+  vec3 backPos = aPos.xyz;
 
-  // World position of the cube back side, is fetched from a previously rendered texture
-  vec4 backPosFetch = texelFetch(u_positionTexture, ivec2(gl_FragCoord.xy), 0);
-  // Clear color of the back position texture has alpha of 0 so we can check for that.
-  vec3 backPos = backPosFetch.a <= 0.0 ? frontPos : backPosFetch.xyz;
+  // World position of the cube front side. It's fetched from a previously rendered texture.
+  vec4 frontPosFetch = texelFetch(u_positionTexture, ivec2(gl_FragCoord.xy), 0);
+  // Clear color of the front position texture has alpha of 0 so we can check for that.
+  vec3 frontPos = frontPosFetch.a <= 0.0 ? backPos : frontPosFetch.xyz;
 
   vec3 raySpan = backPos - frontPos;
   float raySpanLen = length(raySpan);

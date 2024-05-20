@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { PNG } from "pngjs";
-import importFiles from "~/utils.js";
+import {PNG} from "pngjs";
+import {importFiles} from "~/utils.js";
 
 const cthead = [];
 

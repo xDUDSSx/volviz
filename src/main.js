@@ -3,6 +3,7 @@ import { WebGLRenderer, PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Stats from "stats-js/src/Stats.js";
 import UI from "~/ui/UI.js";
+import {threeJsShaderDebugCallback} from "~/utils.js";
 
 import VolumeWorld from "./renderer/VolumeWorld.js";
 
@@ -15,6 +16,8 @@ function createCanvas(settings) {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(0x7ec0ee, 1);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.debug.checkShaderErrors = true;
+    renderer.debug.onShaderError = threeJsShaderDebugCallback;
 
     // stats
     var stats = new Stats();
