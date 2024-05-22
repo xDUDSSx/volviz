@@ -67,6 +67,12 @@ class Settings {
     mode = 1;
     samples = 50;
     noise = 0.1;
+    gradient = "";
+    wgrad = 0.2;
+    wsil = 0.5;
+    wlight = 0.3;
+    ks = 0.4;
+    kt = 4.0;
 }
 
 // Run the app

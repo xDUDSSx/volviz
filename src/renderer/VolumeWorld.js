@@ -47,6 +47,11 @@ export default class VolumeWorld {
             uniforms: {
                 u_mode: { value: 0 },
 
+                u_ks: {value: 0.},
+                u_kt: {value: 0.},
+                u_wGrad: {value: 0.},
+                u_wSil: {value: 0.},
+                u_wLight: {value: 0.},
                 u_volumeSamples: { value: 50 },
                 u_volumeInvertX: { value: false },
                 u_volumeInvertY: { value: true },
@@ -119,6 +124,11 @@ export default class VolumeWorld {
         this.raymarchingMaterial.uniforms.u_mode.value = this.settings.mode;
         this.raymarchingMaterial.uniforms.u_volumeSamples.value = this.settings.samples;
         this.raymarchingMaterial.uniforms.u_volumeNoise.value = this.settings.noise;
+        this.raymarchingMaterial.uniforms.u_ks.value = this.settings.ks;
+        this.raymarchingMaterial.uniforms.u_kt.value = this.settings.kt;
+        this.raymarchingMaterial.uniforms.u_wGrad.value = this.settings.wgrad;
+        this.raymarchingMaterial.uniforms.u_wSil.value = this.settings.wsil;
+        this.raymarchingMaterial.uniforms.u_wLight.value = this.settings.wlight;
     }
 
     resize(width, height, pixelRatio = window.devicePixelRatio) {
