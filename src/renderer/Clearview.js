@@ -33,6 +33,7 @@ export default class Clearview {
             fragmentShader: shader_clearview_frag,
             uniforms: {
                 u_resolution: { value: new THREE.Vector2(resolution.x, resolution.y) },
+                u_worldSpaceLight: { value: false },
                 u_iso1PositionTexture: { value: this.isosurface1Target1.textures[0] },
                 u_iso1NormalTexture: { value: this.isosurface1Target1.textures[1] },
                 // u_isovalue: { value: 0.5 },
@@ -63,6 +64,7 @@ export default class Clearview {
     }
 
     update(settings) {
+        this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
         // this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
     }

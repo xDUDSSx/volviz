@@ -27,8 +27,8 @@ export default class VolumeWorld {
 
         this.raymarcher = new Raymarcher(rendererSize);
 
-        const lights = new BasicLights();
-        this.scene.add(lights);
+        // const lights = new BasicLights();
+        // this.scene.add(lights);
 
         const axesHelper = new THREE.AxesHelper(2);
         this.scene.add(axesHelper);
@@ -77,7 +77,7 @@ export default class VolumeWorld {
         case 2:
         case 3:
             if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.render(renderer, camera);
-            break;  
+            break;
         }
         // this.raymarcher.renderIsosurface(renderer, camera);
 

@@ -21,6 +21,29 @@ export default class UI {
         
         this.pane.addBlade({
             view: "list",
+            label: "method",
+            options: [
+                {text: "ClearView", value: 0},
+                {text: "Illustrative", value: 1},
+            ],
+            value: settings.method,
+        }).on("change", (e) => {
+            settings.method = e.value;
+            switch(settings.method) {
+            case 0:
+                clearview.expanded = true;
+                contextPreserve.expanded = false;
+                importanceAware.expanded = false;
+                break;
+            default:
+                clearview.expanded = false;
+                contextPreserve.expanded = true;
+                importanceAware.expanded = true;   
+            }
+        });
+
+        this.pane.addBlade({
+            view: "list",
             label: "mode",
             options: [
                 {text: "opacity", value: 0},
@@ -45,7 +68,12 @@ export default class UI {
             max: 1.0,
             format: (v) => v.toFixed(3),
         });
-        this.pane.addBinding(settings, "normalSampleFactor", {
+
+        const clearview = this.pane.addFolder({
+            title: "ClearView",
+            expanded: false,
+        });
+        clearview.addBinding(settings, "normalSampleFactor", {
             label: "normal factor",
             // view: "camerawheel",
             // amount: -0.001,
@@ -53,7 +81,7 @@ export default class UI {
             max: 2.0,
             format: (v) => v.toFixed(3),
         });
-        this.pane.addBinding(settings, "isovalue1", {
+        clearview.addBinding(settings, "isovalue1", {
             view: "cameraring",
             series: 1,
             unit: {
@@ -67,6 +95,9 @@ export default class UI {
             min: 0.0,
             max: 1.0,
             format: (v) => v.toFixed(3),
+        });
+        clearview.addBinding(settings, "worldSpaceLighting", {
+            label: "World space shading"
         });
 
         const importanceAware = this.pane.addFolder({

@@ -69,9 +69,11 @@ function createCanvas(settings) {
 class Settings {
     method = 1;
     mode = 1;
-    samples = 100;
+    samples = 150;
     noise = 0.1;
 
+    // Clearview
+    worldSpaceLighting = false;
     isovalue1 = 0.5;
     normalSampleFactor = 1.0;
 

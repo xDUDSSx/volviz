@@ -13,50 +13,6 @@ uniform float u_normalSampleFactor;
 
 #include <raymarcher.chunk.frag>
 
-vec4 raymarchAccumulate(vec3 rayDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
-    vec4 stepColor = vec4(vec3(0), 0.16);
-    vec4 accumColor = vec4(0);
-
-    vec3 pos = startPos;
-    float step = 0.;
-
-    for (int i = 0; i < stepCount; i++) {
-        float density = sampleVolume(pos);
-        accumColor += stepColor * density;
-        if (step > stopDist) {
-            break;
-        }
-        if (accumColor.a >= 1.0) {
-            break;
-        }
-        step += stepSize;
-        pos += rayDir * stepSize;
-    }
-
-    return accumColor;
-}
-
-vec4 raymarchAverage(vec3 rayDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
-    vec4 accumColor = vec4(0);
-
-    float densitySum = 0.;
-
-    vec3 pos = startPos;
-    float step = 0.;
-
-    for (int i = 0; i < stepCount; i++) {
-        float density = sampleVolume(pos);
-        densitySum += density;
-        if (step > stopDist) {
-            break;
-        }
-        step += stepSize;
-        pos += rayDir * stepSize;
-    }
-
-    return vec4(vec3(densitySum / float(stepCount)), 1.0) * 2.0;
-}
-
 struct Gradient {
     vec3 normal;
     vec3 gradient;
@@ -77,7 +33,7 @@ Gradient approximateGradient(vec3 pos, float stepSize, vec3 viewRay) {
     g.magnitude = length(g.gradient) + 0.01;
     g.normal = g.gradient / g.magnitude;
 
-    float Nselect = float(dot(g.normal, viewRay) > 0.0);
+    float Nselect = float(dot(g.normal, -viewRay) > 0.0);
     g.normal *= (2.0 * Nselect - 1.0);
 
     return g;
