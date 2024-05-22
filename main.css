@@ -42,7 +42,7 @@ html {
 }
 
 * {
-    --bld-vw: var(--tp-blade-value-width, 200px); /* Make tweakpane a little wider*/
+    --bld-vw: var(--tp-blade-value-width, 220px); /* Make tweakpane a little wider*/
 }
 
 /*# sourceMappingURL=main.css.map*/
