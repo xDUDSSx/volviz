@@ -68,8 +68,14 @@ function createCanvas(settings) {
 
 class Settings {
     mode = 1;
-    samples = 50;
+    samples = 100;
     noise = 0.1;
+
+    isovalue1 = 0.5;
+    normalSampleFactor = 1.0;
+
+    volumeMin = 0;
+    volumeMax = 0;
 }
 
 // Run the app

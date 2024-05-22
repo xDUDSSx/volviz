@@ -85,3 +85,8 @@ export function threeJsShaderDebugCallback(gl, program, glVertexShader, glFragme
     parseForErrors(gl, glVertexShader, "Vertex Shader");
     parseForErrors(gl, glFragmentShader, "Fragment Shader");
 }
+
+export function resolveInclude(shader, chunkName, chunkContent) {
+    let includePattern = new RegExp(String.raw`^[ \t]*#include +<(${chunkName})>`, "gm");
+    return shader.replace(includePattern, chunkContent);
+}

@@ -14,13 +14,13 @@
     "build": "webpack --mode production"
   },
   "dependencies": {
-    "webpack-cli": "^5.0.1",
-    "three": "^0.164.0",
+    "@tweakpane/plugin-camerakit": "^0.3.0",
+    "interactjs": "^1.10.27",
     "pngjs": "^7.0.0",
     "stats-js": "^1.0.1",
+    "three": "^0.164.0",
     "tweakpane": "^4.0.3",
-    "@tweakpane/plugin-camerakit": "^0.3.0",
-    "interactjs": "^1.10.27"
+    "webpack-cli": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.5",

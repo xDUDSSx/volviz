@@ -13,7 +13,7 @@ export default class UI {
         // Controls pane
         this.pane = new DraggableTweakpane({
             x: -8, y: 8,
-            width: 320,
+            width: 340,
             title: "Controls",
             expanded: true,
         });
@@ -32,15 +32,36 @@ export default class UI {
         });
 
         this.pane.addBinding(settings, "samples", {
-            view: "camerawheel",
-            amount: -0.2,
             min: 1,
-            max: 200,
+            max: 400,
             step: 1
         });
         this.pane.addBinding(settings, "noise", {
             view: "camerawheel",
             amount: -0.001,
+            min: 0.0,
+            max: 1.0,
+            format: (v) => v.toFixed(3),
+        });
+        this.pane.addBinding(settings, "normalSampleFactor", {
+            label: "normal factor",
+            // view: "camerawheel",
+            // amount: -0.001,
+            min: 0.0,
+            max: 2.0,
+            format: (v) => v.toFixed(3),
+        });
+        this.pane.addBinding(settings, "isovalue1", {
+            view: "cameraring",
+            series: 1,
+            unit: {
+                // Pixels for the unit
+                pixels: 80,
+                // Number of ticks for the unit
+                ticks: 10,
+                // Amount of a value for the unit
+                value: 0.1,
+            },
             min: 0.0,
             max: 1.0,
             format: (v) => v.toFixed(3),
