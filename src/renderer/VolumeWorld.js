@@ -3,6 +3,7 @@ import BasicLights from "./objects/Lights.js";
 import Loader from "./Loader.js";
 import Raymarcher from "./Raymarcher.js";
 import Clearview from "./Clearview.js";
+import IllustrativeRaymarcher from "./IllustrativeRaymarcher.js";
 
 export default class VolumeWorld {
     settings;
@@ -10,6 +11,7 @@ export default class VolumeWorld {
     raymarcher;
 
     clearview;
+    illustrativeRaymarcher;
 
     /**
      * @param {THREE.WebGLRenderer} renderer
@@ -31,7 +33,7 @@ export default class VolumeWorld {
         const axesHelper = new THREE.AxesHelper(2);
         this.scene.add(axesHelper);
     }
-
+    
     loadCTHead(ui) {
         let loadingCallback = (val) => {
             ui.loadingButton.title = Math.round(val * 100) + " %";
@@ -54,6 +56,7 @@ export default class VolumeWorld {
             let rendererSize = new THREE.Vector2();
             this.renderer.getSize(rendererSize);
             this.clearview = new Clearview(this.raymarcher, rendererSize, volumeBox);
+            this.illustrativeRaymarcher = new IllustrativeRaymarcher(this.raymarcher, rendererSize, volumeBox);
         });
     }
 
@@ -64,9 +67,18 @@ export default class VolumeWorld {
     render(renderer, camera) {
         // First pass: render positions of the front side of the volume cube
         this.raymarcher.renderRaymarcherPositionCube(renderer, camera);
-        
-        if (this.clearview) this.clearview.render(renderer, camera);
 
+        switch (this.settings.method)
+        {
+        case 0:
+            if (this.clearview) this.clearview.render(renderer, camera);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.render(renderer, camera);
+            break;  
+        }
         // this.raymarcher.renderIsosurface(renderer, camera);
 
         // Second pass: render the back sides of the volume cube with the raymarching shader.
@@ -78,6 +90,7 @@ export default class VolumeWorld {
     update() {
         this.raymarcher.update(this.settings);
         if (this.clearview) this.clearview.update(this.settings);
+        if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.update(this.settings);
     }
 
     resize(width, height, pixelRatio = window.devicePixelRatio) {
@@ -87,5 +100,6 @@ export default class VolumeWorld {
         
         this.raymarcher.resize(realWidth, realHeight);
         if (this.clearview) this.clearview.resize(realWidth, realHeight);
+        if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.resize(realWidth, realHeight);
     }
 }

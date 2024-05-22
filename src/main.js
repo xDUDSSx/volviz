@@ -67,6 +67,7 @@ function createCanvas(settings) {
 }
 
 class Settings {
+    method = 1;
     mode = 1;
     samples = 100;
     noise = 0.1;
@@ -76,6 +77,13 @@ class Settings {
 
     volumeMin = 0;
     volumeMax = 0;
+    
+    gradient = "";
+    wgrad = 0.2;
+    wsil = 0.5;
+    wlight = 0.3;
+    ks = 0.4;
+    kt = 4.0;
 }
 
 // Run the app

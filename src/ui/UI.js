@@ -25,6 +25,8 @@ export default class UI {
             options: [
                 {text: "opacity", value: 0},
                 {text: "average", value: 1},
+                {text: "importance-aware", value: 2},
+                {text: "context-preserve", value: 3},
             ],
             value: settings.mode,
         }).on("change", (e) => {
@@ -64,6 +66,51 @@ export default class UI {
             },
             min: 0.0,
             max: 1.0,
+            format: (v) => v.toFixed(3),
+        });
+
+        const importanceAware = this.pane.addFolder({
+            title: "Importance-Aware Parameters",
+            expanded: false,
+        });
+        importanceAware.addBinding(settings, "wgrad", {
+            view: "slider",
+            min: 0.0,
+            max: 1.0,
+            step: 0.01,
+            format: (v) => v.toFixed(3),
+        });
+        importanceAware.addBinding(settings, "wsil", {
+            view: "slider",
+            min: 0.0,
+            max: 1.0,
+            step: 0.01,
+            format: (v) => v.toFixed(3),
+        });
+        importanceAware.addBinding(settings, "wlight", {
+            view: "slider",
+            min: 0.0,
+            max: 1.0,
+            step: 0.01,
+            format: (v) => v.toFixed(3),
+        });
+
+        const contextPreserve = this.pane.addFolder({
+            title: "Context-Preserve Parameters",
+            expanded: false,
+        });
+        contextPreserve.addBinding(settings, "ks", {
+            view: "slider",
+            min: 0.0,
+            max: 1.0,
+            step: 0.01,
+            format: (v) => v.toFixed(3),
+        });
+        contextPreserve.addBinding(settings, "kt", {
+            view: "slider",
+            min: 0.0,
+            max: 15.0,
+            step: 0.1,
             format: (v) => v.toFixed(3),
         });
 
