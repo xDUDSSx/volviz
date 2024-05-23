@@ -1,67 +1,28 @@
-# Three Seed
+# Direct volume renderer using THREE.js
+## Illustrative visualization of volumetric data
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Three.js starter project boilerplate bundled with Webpack.
+This project implements three different illustrative techniques for the visualization of volume data and allows the user to switch between the techniques and interactively change various parameters.
+The renderer is using THREE.js and WebGL 2. The volumetric data is raymarched inside GLSL shaders.
 
-This project is designed to help you get started on your next three.js project. It sets up a simple scene, camera and renderer to view two imported GLTF assets.
+[Online Demo]([http://edwinwebb.github.io/three-seed/](https://xdudssx.github.io/volviz/))
 
-[Online Demo](http://edwinwebb.github.io/three-seed/)
+![image](https://github.com/xDUDSSx/volviz/assets/44985061/428befef-d134-4bc2-9ae8-6a4fec9099ac)
 
-## Install
-Before you begin, make sure you are comfortable with terminal commands and have [Node and NPM installed](https://www.npmjs.com/get-npm). Then either install via a download or with Git.
+Implemented techniques:
+[1] Kruger, J., Schneider, J. and Westermann, R., 2006. Clearview: An interactive context-preserving hotspot visualization technique. IEEE Transactions on Visualization and Computer Graphics, 12(5), pp.941-948.
+[2] de Moura Pinto, F. and Freitas, C.M., 2010, August. Importance-aware composition for illustrative volume rendering. In 2010 23rd SIBGRAPI Conference on Graphics, Patterns and Images (pp. 134-141). IEEE.
+[3] Bruckner, S., Grimm, S., Kanitsar, A. and Gröller, M.E., 2005, May. Illustrative context-preserving volume rendering. In EuroVis (pp. 69-76).
 
-### Install via Download
-First download the [zip of the project](https://github.com/edwinwebb/three-seed/archive/master.zip) and extract it. Then in terminal at that folder type `npm install` to set things up. To get going run: `npm start`.
+*Originally written as semestral work for the Visualization class at Czech Technical University in Prague.*
 
-### Install with Git
-In terminal clone the project into a directory of your choice then delete the git folder to start fresh.
-
-```bash
-git clone --depth=1 https://github.com/edwinwebb/three-seed.git my-project
-cd my-project
-rm -rf .git
-npm install
-```
-
-## Running the development server
-To see the changes you make to the starter project go to the project folder in terminal and type...
-
+## Running the dev server
 ```bash
 npm start
 ```
 
-This command will bundle the project code and start a development server at [http://localhost:8080/](http://localhost:8080/). Visit this in your web browser; you should see a rotating island and flower.
-
-## Editing the code
-The first file you should open is `./objects/Scene.js`. In it you will find the three objects comprising the ThreeJS scene represented in your browser. The flower, the island, and the lights illuminating them are each represented as a javascript file in the `./object/` folder. Open these, edit them and see your changes in the browser. If something goes wrong a message will displayed in the debug console of the browser.
-
-## Importing local files
-Local files, such as images and 3D models, are imported into the application as URLs then loaded asynchronously with three.js. Most common files that three.js uses are supported. For more information about this system see the [webpack site](https://webpack.js.org/).
-
-## Importing modules from the web
-If you want to add additional functionality to your project, you can search and install them from the [NPM repository](https://www.npmjs.com/). Some modules you might want to consider are...
-* [three-orbit-controls](https://www.npmjs.com/package/three-orbit-controls)
-* [popmotion](https://www.npmjs.com/package/popmotion)
-* [Cannon.js Physics](https://www.npmjs.com/package/cannon).
-
-Additions like these are best managed in the projects entry file: `./src/entry.js`. In it are the Scene, Camera, Renderer, the window event listeners and the animation loop.
-
-## Using the Three.js Examples
-When using this project you might bump into a few issues around using 
-the examples from three.js docs. Most of the common issues have been 
-solved with including NPM packages. However, for more complex examples 
-with custom script includes you might find yourself having to refactor 
-them. See [Issue 15](https://github.com/edwinwebb/three-seed/issues/15) 
-for an example.
-
-## About the models
-Both the models are loaded by the GLTFLoader and were sourced from the Google Poly project.
-
-"[Floating Island](https://poly.google.com/view/eEz9hdknXOi)" by [sirkitree](https://poly.google.com/user/3dVB0GT8oMI) is licensed under CC BY 2.0
-
-"[Flower](https://poly.google.com/view/9znAp0dJiS8)" by [Poly By Google](https://poly.google.com/user/4aEd8rQgKu2) is licensed under CC BY 2.0
-
 ## Building the project for the web
 Once you are happy with your project you'll be sure to want to show it off. Running `npm run build` in terminal will bundle your project into the folder `./build/`. You can upload this directory to a web server. For more complex results read [this guide](https://webpack.js.org/guides/production/).
 
-## License
-[MIT](https://github.com/edwinwebb/three-seed/blob/master/LICENSE)
+## Thanks
+The project used the [three-seed](https://github.com/edwinwebb/three-seed) starter template by edwinwebb (MIT)
