@@ -25,29 +25,25 @@ export default class VolumeWorld {
         let rendererSize = new THREE.Vector2();
         this.renderer.getSize(rendererSize);
 
-        this.gradientCanvas = THREE.createCanvasElement();
-        this.gradientCanvas.width = 256;
-        this.gradientCanvas.height = 1;
-
-        const ctx = this.gradientCanvas.getContext("2d");
-        const linearGradient = ctx.createLinearGradient(0, 0, 500, 0);
-        linearGradient.addColorStop(0, "rgba(3,1,37,0)");
-        linearGradient.addColorStop(0.15, "rgba(85,79,63,0.2)");
-        linearGradient.addColorStop(0.17, "rgba(215,30,30,1)");
-        linearGradient.addColorStop(0.21, "rgba(60,150,176,1)");
-        linearGradient.addColorStop(0.25, "rgba(28,169,6,0.8827906162464986)");
-        linearGradient.addColorStop(0.5, "rgba(28,169,6,1)");
-        linearGradient.addColorStop(1.0, "rgba(255,0,0,1)");
+        //const ctx = this.gradientCanvas.getContext("2d");
+        //const linearGradient = ctx.createLinearGradient(0, 0, 256, 0);
+        //linearGradient.addColorStop(0, "rgba(3,1,37,0)");
+        //linearGradient.addColorStop(0.15, "rgba(85,79,63,0.2)");
+        //linearGradient.addColorStop(0.17, "rgba(215,30,30,1)");
+        //linearGradient.addColorStop(0.21, "rgba(60,150,176,1)");
+        //linearGradient.addColorStop(0.25, "rgba(28,169,6,0.8827906162464986)");
+        //linearGradient.addColorStop(0.5, "rgba(28,169,6,1)");
+        //linearGradient.addColorStop(1.0, "rgba(255,0,0,1)");
         //linearGradient.addColorStop(0, "rgba(1,1,1,0)");
         //linearGradient.addColorStop(0.25, "rgba(0,52,127,0.22)");
         //linearGradient.addColorStop(0.4, "rgba(255,0,0,1)");
         //linearGradient.addColorStop(1.0, "rgba(255,0,0,1)");
 
-        ctx.fillStyle = linearGradient;
-        ctx.fillRect(0, 0, 500, 1);
+        //ctx.fillStyle = linearGradient;
+        //ctx.fillRect(0, 0, 256, 1);
 
         this.raymarcher = new Raymarcher(rendererSize);
-        this.raymarcher.setGradientCanvas(this.gradientCanvas);
+        this.raymarcher.setGradientCanvas(settings.gradientCanvas);
         // const lights = new BasicLights();
         // this.scene.add(lights);
 

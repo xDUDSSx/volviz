@@ -211,7 +211,7 @@ export default class Raymarcher {
 
     update(settings) {
         this.raymarcherShader.uniforms.u_mode.value = settings.mode;
-        
+        this.gradientTexture.needsUpdate = true;
         this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
 

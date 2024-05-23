@@ -98,6 +98,10 @@ class Settings {
     noise = 0.1;
 
     axesVisible = false;
+    
+    //Transfer function
+    transferColorText = "";
+    gradientCanvas = THREE.createCanvasElement();
 
     // Clearview
     controlPointVisible = false;
@@ -128,6 +132,10 @@ class Settings {
 if (WebGL.isWebGLAvailable()) {
     let settings = new Settings();
     createCanvas(settings);
+
+    settings.gradientCanvas.width = 256;
+    settings.gradientCanvas.height = 1;
+
     let ui = new UI(settings);
     volumeWorld.loadCTHead(ui);
 } else {

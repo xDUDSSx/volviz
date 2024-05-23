@@ -15,14 +15,6 @@ uniform float u_wGrad;
 uniform float u_wSil;
 uniform float u_wLight;
 
-vec3 getColorAt(float value, vec3 color1, vec3 color2) {
-  return mix(color1, color2, value);
-}
-
-float getOpacityAt(float value, float opacity1, float opacity2) {
-  return mix(opacity1, opacity2, value);
-}
-
 struct GradientApproximation {
   vec3 normal;
   vec3 gradient;
@@ -49,9 +41,9 @@ GradientApproximation approximateGradient(vec3 pos, float stepSize, vec3 viewRay
 }
 
 float shadingIntensity(vec3 normal, vec3 lightDir, vec3 viewDir, float diffuse, float specular, float shininess) {
-  float diff = clamp(dot(normal, -lightDir), 0.0, 1.0);
+  float diff = clamp(dot(normal, -lightDir), 0.0, 1.0) * diffuse;
   vec3 halfVector = normalize(-lightDir + viewDir);
-  float spec = pow(max(dot(halfVector, normal), 0.0), shininess);
+  float spec = pow(max(dot(halfVector, normal), 0.0), shininess) * specular;
 
   return diff + spec;
 }
@@ -67,7 +59,7 @@ const vec3 gEnd = vec3(1., 0., 0.);
 const float oStart = 0.2;
 const float oEnd = 0.8;
 
-vec4 raymarchContextPreserve(vec3 rayDir, vec3 lightDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
+vec4 raymarchContextPreserve(vec3 rayDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
   vec3 accumColor = vec3(0.0);
   float accumOpacity = 0.;
 
@@ -83,15 +75,13 @@ vec4 raymarchContextPreserve(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
 
     GradientApproximation ga = approximateGradient(pos, stepSize, viewRay);
     float sampleValue = sampleVolume(pos);
-    //float opacity = getOpacityAt(sampleValue, oStart, oEnd);
-    //vec3 color = getColorAt(sampleValue, gStart, gEnd);
     vec4 transfer = getColorAt(sampleValue);
     float opacity = transfer.a;
     vec3 color = transfer.rgb;
 
     float normalizedDistance = step / stopDist;
 
-    float shadingIntensity = shadingIntensity(ga.normal, lightDir, viewRay, 0.8, 0.4, 25.);
+    float shadingIntensity = shadingIntensity(ga.normal, rayDir, viewRay, 0.8, 0.4, 25.);
     float alpha = computeAlphaForContextPreserveStep(ga.magnitude, shadingIntensity, opacity, accumOpacity, normalizedDistance);
     float accumulationAlphaValue = alpha * (1. - accumOpacity);
     accumColor += color * accumulationAlphaValue;
@@ -120,9 +110,9 @@ float lightingImportanceFunction(float magnitude, vec3 normal, vec3 viewDir, vec
   const float p1 = 50.;
   const float p2 = 5.;
   const float p3 = 30.;
-  vec3 halfVector = normalize(viewDir + lightDir);
-  float specular = pow(dot(normal, halfVector), p1);
-  float diffuse = pow(dot(normal, lightDir), p2);
+  vec3 halfVector = normalize(viewDir - lightDir);
+  float specular = pow(max(dot(normal, halfVector), 0.), p1);
+  float diffuse = pow(max(dot(normal, -lightDir), 0.), p2);
   float gradient = pow(1. - magnitude, p3);
 
   return u_wLight * (3.0 - specular - diffuse - gradient);
@@ -155,13 +145,13 @@ float modulationFactor(float importance, float accumulatedImportance, float opac
   if(importance <= accumulatedImportance)
     return 1.;
   float visibility = visibilityFunction(importance, accumulatedImportance);
-  if(1. - opacity >= visibility)
+  if(1. - opacity > visibility)
     return 1.;
-  opacity += 0.00001;
-  return (1. - visibility) / opacity;
+  opacity = max(opacity, 0.00001);
+  return clamp((1. - visibility) / opacity, 0., 1.);
 }
 
-vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
+vec4 raymarchImportanceAware(vec3 rayDir, vec3 startPos, float stepSize, int stepCount, float stopDist) {
   vec3 accumColor = vec3(0.);
   float accumOpacity = 0.;
   float accumImportance = 0.;
@@ -172,14 +162,12 @@ vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
 
   for(int i = 0; i < stepCount && step <= stopDist; ++i) {
     float sampleValue = sampleVolume(pos);
-    //float opacity = getOpacityAt(sampleValue, oStart, oEnd);
-    //vec3 color = getColorAt(sampleValue, gStart, gEnd);
     vec4 transfer = getColorAt(sampleValue);
     float opacity = transfer.a;
     vec3 color = transfer.rgb;
 
     GradientApproximation ga = approximateGradient(pos, stepSize, viewRay);
-    float importance = globalImportanceFunction(1., ga.magnitude, ga.normal, viewRay, lightDir);
+    float importance = globalImportanceFunction(1., ga.magnitude, ga.normal, viewRay, rayDir);
     float modulation = modulationFactor(importance, accumImportance, accumOpacity);
     accumImportance = max(accumImportance, log(opacity + (1. - opacity) * exp(accumImportance - importance)) + importance);
 
@@ -191,8 +179,8 @@ vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
     if(primeAccumOpacity > 0.00001)
       accumColor = primeAccumColor * accumOpacity / primeAccumOpacity;
 
-    if(accumOpacity >= 1.0)
-      break;
+    //if(accumOpacity >= 1.0)
+    //  break;
 
     step += stepSize;
     pos += rayDir * stepSize;
@@ -256,7 +244,7 @@ void main() {
 
   setupRaymarcher(coords, rayDir, frontPos, stepSize, stepCount, raySpanLen);
 
-  vec3 lightDir = normalize(vec3(-1., -1., -1.) - (frontPos + vec3(2., 2., 2.)));
+  //vec3 lightDir = normalize(vec3(-1., -1., -1.) - (frontPos + vec3(2., 2., 2.)));
   vec4 color;
 
   switch(u_mode) {
@@ -267,10 +255,10 @@ void main() {
       color = raymarchAverage(rayDir, frontPos, stepSize, stepCount, raySpanLen);
       break;
     case 2:
-      color = raymarchImportanceAware(rayDir, lightDir, frontPos, stepSize, stepCount, raySpanLen);
+      color = raymarchImportanceAware(rayDir, frontPos, stepSize, stepCount, raySpanLen);
       break;
     case 3:
-      color = raymarchContextPreserve(rayDir, lightDir, frontPos, stepSize, stepCount, raySpanLen);
+      color = raymarchContextPreserve(rayDir, frontPos, stepSize, stepCount, raySpanLen);
       break;
   }
 

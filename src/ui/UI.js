@@ -5,7 +5,7 @@ import "./general.css";
 export default class UI {
     pane;
     loadingPane;
-    
+
     loadingButton;
 
     constructor(settings) {
@@ -17,35 +17,35 @@ export default class UI {
             expanded: true,
         });
         this.pane.registerPlugin(CamerakitPlugin);
-        
+
         this.pane.addBlade({
             view: "list",
             label: "method",
             options: [
-                {text: "ClearView", value: 0},
-                {text: "Illustrative", value: 1},
+                { text: "ClearView", value: 0 },
+                { text: "Illustrative", value: 1 },
             ],
             value: settings.method,
         }).on("change", (e) => {
             settings.method = e.value;
-            switch(settings.method) {
-            case 0:
-                clearview.expanded = true;
-                contextPreserve.expanded = false;
-                importanceAware.expanded = false;
-                
-                clearview.hidden = false;
-                contextPreserve.hidden = true;
-                importanceAware.hidden = true;
-                break;
-            default:
-                clearview.expanded = false;
-                contextPreserve.expanded = true;
-                importanceAware.expanded = true;   
+            switch (settings.method) {
+                case 0:
+                    clearview.expanded = true;
+                    contextPreserve.expanded = false;
+                    importanceAware.expanded = false;
 
-                clearview.hidden = true;
-                contextPreserve.hidden = false;
-                importanceAware.hidden = false;
+                    clearview.hidden = false;
+                    contextPreserve.hidden = true;
+                    importanceAware.hidden = true;
+                    break;
+                default:
+                    clearview.expanded = false;
+                    contextPreserve.expanded = true;
+                    importanceAware.expanded = true;
+
+                    clearview.hidden = true;
+                    contextPreserve.hidden = false;
+                    importanceAware.hidden = false;
             }
         });
 
@@ -53,10 +53,10 @@ export default class UI {
             view: "list",
             label: "mode",
             options: [
-                {text: "opacity", value: 0},
-                {text: "average", value: 1},
-                {text: "importance-aware", value: 2},
-                {text: "context-preserve", value: 3},
+                { text: "opacity", value: 0 },
+                { text: "average", value: 1 },
+                { text: "importance-aware", value: 2 },
+                { text: "context-preserve", value: 3 },
             ],
             value: settings.mode,
         }).on("change", (e) => {
@@ -79,6 +79,40 @@ export default class UI {
             label: "show axes"
         });
 
+        this.pane.addBlade({
+            view: "text",
+            label: "transferColorText",
+            parse: (v) => String(v),
+            value: "rgba(0,84,198,0.20211834733893552) 0%, rgba(45,140,46,1) 43%, rgba(255,0,0,1) 100%"
+        }).on("change", (e) => {
+            settings.transferColorText = e.value;
+
+            const ctx = settings.gradientCanvas.getContext("2d");
+            ctx.clearRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
+            try{
+                const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
+                const parts = e.value.split("%,").map(part => part.trim());
+                for(let i = 0; i < parts.length; ++i){
+                    let [rgba, percentage] = parts[i].split(") ");
+                    if (i === parts.length - 1) {
+                        percentage = percentage.replace("%", "");
+                    }
+                    const rgbaVal = rgba + ")";
+                    const percentageValue = parseFloat(percentage);``
+
+                    linearGradient.addColorStop(percentageValue * 0.01, rgbaVal);
+                }
+                ctx.fillStyle = linearGradient;
+            }
+            catch{
+                const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
+                linearGradient.addColorStop(0, "rgba(0,0,0,0)");
+                linearGradient.addColorStop(1, "rgba(0,0,0,1)");
+                ctx.fillStyle = linearGradient;
+            }
+
+            ctx.fillRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
+        });
 
         const clearview = this.pane.addFolder({
             title: "ClearView",
@@ -104,25 +138,25 @@ export default class UI {
             view: "list",
             label: "importance method",
             options: [
-                {text: "view distance", value: 0},
-                {text: "distance", value: 1},
-                {text: "curvature", value: 3},
+                { text: "view distance", value: 0 },
+                { text: "distance", value: 1 },
+                { text: "curvature", value: 3 },
             ],
             value: settings.importanceMethod,
         }).on("change", (e) => {
             settings.importanceMethod = e.value;
-            switch(settings.importanceMethod) {
-            case 0:
-                curvatureMultiplier.hidden = true;
-                distanceMultiplier.hidden = false;
-                break;
-            case 3:
-                curvatureMultiplier.hidden = false;
-                distanceMultiplier.hidden = true;
-                break;
-            default:
-                curvatureMultiplier.hidden = true;
-                distanceMultiplier.hidden = true;
+            switch (settings.importanceMethod) {
+                case 0:
+                    curvatureMultiplier.hidden = true;
+                    distanceMultiplier.hidden = false;
+                    break;
+                case 3:
+                    curvatureMultiplier.hidden = false;
+                    distanceMultiplier.hidden = true;
+                    break;
+                default:
+                    curvatureMultiplier.hidden = true;
+                    distanceMultiplier.hidden = true;
             }
         });
         let curvatureMultiplier = clearview.addBinding(settings, "curvatureMultiplier", {
