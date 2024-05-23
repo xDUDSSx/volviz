@@ -8,6 +8,7 @@ uniform vec3 u_focusPoint;
 uniform float u_focusArea;
 uniform float u_focusAreaSharpness;
 uniform int u_importanceMethod;
+uniform float u_importanceStrength;
 uniform bool u_worldSpaceLight;
 
 uniform sampler2D u_iso1PosTex;
@@ -63,6 +64,20 @@ vec4 isosurface(vec4 position, vec4 normal, vec3 lightDir, Material material) {
     return vec4(color, 1.0);
 }
 
+float calculateCurvature(ivec2 fragCoord, vec4 fragNormal, in sampler2D normalSampler) {
+    const ivec2 xStep = ivec2(1, 0);
+    const ivec2 yStep = ivec2(0, 1);
+
+    vec4 p = fragNormal;
+    vec4 pt = texelFetch(normalSampler, ivec2(fragCoord + yStep), 0);
+    vec4 pb = texelFetch(normalSampler, ivec2(fragCoord - yStep), 0);
+    vec4 pl = texelFetch(normalSampler, ivec2(fragCoord - xStep), 0);
+    vec4 pr = texelFetch(normalSampler, ivec2(fragCoord + xStep), 0);
+
+    float curvature = length(p - pt) + length(p - pb) + length(p - pl) + length(p - pr);
+    return curvature;
+}
+
 void main() {
     vec3 color1 = vec3(0.56, 0.72, 0.91);
     vec3 color2 = vec3(0.9, 0.87, 0.87);
@@ -94,35 +109,34 @@ void main() {
     vec4 iso1Color = isosurface(iso1Position, iso1Normal, lightDir, material1);
     vec4 iso2Color = isosurface(iso2Position, iso2Normal, lightDir, material2);
 
-    // View distance based importance
-
     vec3 contextPos = iso1Position.xyz;
     vec3 focusPos = iso2Position.xyz;
 
     float trans;
-    switch (u_importanceMethod) {
-        case 0: {
-            float fadeHeuristic = length(contextPos - focusPos);
-            float fade = length(u_focusPoint - contextPos) / u_focusArea;
 
+    float fade = length(u_focusPoint - contextPos) / u_focusArea;
+
+    switch (u_importanceMethod) {
+        // View distance based importance
+        case 0: {
+            float fadeHeuristic = length(contextPos - focusPos) * u_importanceStrength;
             trans = 1. - pow(clamp(max(fade, fadeHeuristic), 0., 1.), u_focusAreaSharpness);
             break;
         }
-        case 1:
+        // Distance based importance
+        case 1: {
             float fade = length(u_focusPoint - contextPos) / u_focusArea;
-
-            trans = 1. - pow(clamp(max(fade, 0.0), 0., 1.), u_focusAreaSharpness);
+            trans = 1. - pow(clamp(fade, 0., 1.), u_focusAreaSharpness);
             break;
+        }
+        // Curvature based importance
+        case 3: {
+            float curvature = calculateCurvature(ivec2(gl_FragCoord.xy), iso1Normal, u_iso1NormalTex);
+            curvature *= u_importanceStrength;
+            trans = 1. - pow(clamp(max(fade, curvature), 0., 1.), u_focusAreaSharpness);
+            break;
+        }
     }
 
     gl_FragColor = iso1Color * (1. - trans) + iso2Color * trans;
-
-    // gl_FragColor = vec4(vec3(trans), 1.0);
-    // gl_FragColor = vec4(vec3(trans), 1.0);
-
-    // if (coords.x > 0.5) {
-    //     gl_FragColor = iso1Color;
-    // } else {
-    //     gl_FragColor = iso2Color;
-    // }
 }

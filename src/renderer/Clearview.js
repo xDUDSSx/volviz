@@ -40,6 +40,7 @@ export default class Clearview {
                 u_focusArea: { value: settings.focusArea },
                 u_focusAreaSharpness: { value: settings.focusAreaSharpness },
                 u_importanceMethod: { value: settings.importanceMethod },
+                u_importanceStrength: { value: 1.0 },
                 u_worldSpaceLight: { value: false },
                 u_iso1PosTex: { value: this.isosurface1Target.textures[0] },
                 u_iso1NormalTex: { value: this.isosurface1Target.textures[1] },
@@ -55,6 +56,8 @@ export default class Clearview {
         // this.addRaymarcherUniforms(this.isosurfaceShader.uniforms, resolution);
 
         this.cube = new THREE.Mesh(box, this.clearviewShader);
+
+        this.update(settings);
     }
 
     /**
@@ -77,6 +80,11 @@ export default class Clearview {
         this.clearviewShader.uniforms.u_focusArea.value = settings.focusArea;
         this.clearviewShader.uniforms.u_focusAreaSharpness.value = settings.focusAreaSharpness;
         this.clearviewShader.uniforms.u_importanceMethod.value = settings.importanceMethod;
+        if (settings.importanceMethod == 0) {
+            this.clearviewShader.uniforms.u_importanceStrength.value = settings.distanceMultiplier;
+        } else if (settings.importanceMethod == 3) {
+            this.clearviewShader.uniforms.u_importanceStrength.value = settings.curvatureMultiplier;
+        }
         this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
         // this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);

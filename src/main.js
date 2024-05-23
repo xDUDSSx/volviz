@@ -103,8 +103,10 @@ class Settings {
     controlPointVisible = false;
     controlPointLocation = new THREE.Vector3(-0.144, -0.278, 0.482);
     focusArea = 0.5;
-    focusAreaSharpness = 5.0;
-    importanceMethod = 0;
+    focusAreaSharpness = 2.6;
+    importanceMethod = 3;
+    curvatureMultiplier = 1.0;
+    distanceMultiplier = 4.0;
     worldSpaceLighting = false;
     
     isovalue1 = 0.22;

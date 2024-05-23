@@ -34,11 +34,19 @@ export default class UI {
                 clearview.expanded = true;
                 contextPreserve.expanded = false;
                 importanceAware.expanded = false;
+                
+                clearview.hidden = false;
+                contextPreserve.hidden = true;
+                importanceAware.hidden = true;
                 break;
             default:
                 clearview.expanded = false;
                 contextPreserve.expanded = true;
                 importanceAware.expanded = true;   
+
+                clearview.hidden = true;
+                contextPreserve.hidden = false;
+                importanceAware.hidden = false;
             }
         });
 
@@ -91,17 +99,49 @@ export default class UI {
             max: 10.0,
         });
         clearview.addBlade({
+            view: "separator",
+        });
+        clearview.addBlade({
             view: "list",
             label: "importance method",
             options: [
                 {text: "view distance", value: 0},
                 {text: "distance", value: 1},
+                {text: "curvature", value: 3},
             ],
             value: settings.importanceMethod,
         }).on("change", (e) => {
             settings.importanceMethod = e.value;
+            switch(settings.importanceMethod) {
+            case 0:
+                curvatureMultiplier.hidden = true;
+                distanceMultiplier.hidden = false;
+                break;
+            case 3:
+                curvatureMultiplier.hidden = false;
+                distanceMultiplier.hidden = true;
+                break;
+            default:
+                curvatureMultiplier.hidden = true;
+                distanceMultiplier.hidden = true;
+            }
         });
+        let curvatureMultiplier = clearview.addBinding(settings, "curvatureMultiplier", {
+            label: "curvature multiplier",
+            min: 0.0,
+            max: 4.0,
+        });
+        let distanceMultiplier = clearview.addBinding(settings, "distanceMultiplier", {
+            label: "distance strength",
+            min: 0.0,
+            max: 20.0,
+        });
+        curvatureMultiplier.hidden = false;
+        distanceMultiplier.hidden = true;
 
+        clearview.addBlade({
+            view: "separator",
+        });
         let isovalueSettings = {
             view: "cameraring",
             series: 1,
@@ -136,6 +176,7 @@ export default class UI {
             title: "Importance-Aware Parameters",
             expanded: false,
         });
+
         importanceAware.addBinding(settings, "wgrad", {
             view: "slider",
             min: 0.0,
@@ -188,5 +229,9 @@ export default class UI {
         this.loadingButton = this.loadingPane.addButton({
             title: "0 %",
         });
+
+        clearview.hidden = false;
+        importanceAware.hidden = true;
+        contextPreserve.hidden = true;
     }
 }
