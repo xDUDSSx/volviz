@@ -79,40 +79,19 @@ export default class UI {
             label: "show axes"
         });
 
+        settings.transferColorText = this.constGrad1;
+
         this.pane.addBlade({
             view: "text",
-            label: "transferColorText",
+            label: "transfer color text",
             parse: (v) => String(v),
-            value: "rgba(0,84,198,0.20211834733893552) 0%, rgba(45,140,46,1) 43%, rgba(255,0,0,1) 100%"
+            value: settings.transferColorText,
         }).on("change", (e) => {
             settings.transferColorText = e.value;
-
-            const ctx = settings.gradientCanvas.getContext("2d");
-            ctx.clearRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
-            try{
-                const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
-                const parts = e.value.split("%,").map(part => part.trim());
-                for(let i = 0; i < parts.length; ++i){
-                    let [rgba, percentage] = parts[i].split(") ");
-                    if (i === parts.length - 1) {
-                        percentage = percentage.replace("%", "");
-                    }
-                    const rgbaVal = rgba + ")";
-                    const percentageValue = parseFloat(percentage);``
-
-                    linearGradient.addColorStop(percentageValue * 0.01, rgbaVal);
-                }
-                ctx.fillStyle = linearGradient;
-            }
-            catch{
-                const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
-                linearGradient.addColorStop(0, "rgba(0,0,0,0)");
-                linearGradient.addColorStop(1, "rgba(0,0,0,1)");
-                ctx.fillStyle = linearGradient;
-            }
-
-            ctx.fillRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
+            this.updateTransferFunction(settings);
         });
+
+        this.updateTransferFunction(settings);
 
         const clearview = this.pane.addFolder({
             title: "ClearView",
@@ -267,4 +246,34 @@ export default class UI {
         importanceAware.hidden = true;
         contextPreserve.hidden = true;
     }
+
+    updateTransferFunction(settings) {
+        const ctx = settings.gradientCanvas.getContext("2d");
+        ctx.clearRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
+        try {
+            const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
+            const parts = settings.transferColorText.split("%,").map(part => part.trim());
+            for (let i = 0; i < parts.length; ++i) {
+                let [rgba, percentage] = parts[i].split(") ");
+                if (i === parts.length - 1) {
+                    percentage = percentage.replace("%", "");
+                }
+                const rgbaVal = rgba + ")";
+                const percentageValue = parseFloat(percentage);
+
+                linearGradient.addColorStop(percentageValue * 0.01, rgbaVal);
+            }
+            ctx.fillStyle = linearGradient;
+        }
+        catch {
+            const linearGradient = ctx.createLinearGradient(0, 0, settings.gradientCanvas.width, 0);
+            linearGradient.addColorStop(0, "rgba(0,0,0,0)");
+            linearGradient.addColorStop(1, "rgba(0,0,0,1)");
+            ctx.fillStyle = linearGradient;
+        }
+
+        ctx.fillRect(0, 0, settings.gradientCanvas.width, settings.gradientCanvas.height);
+    }
+    constGrad1 = "rgba(1,1,1,0) 0%, rgba(0,52,127,0.22) 25%, rgba(255,0,0,1) 40%, rgba(255,0,0,1) 100%";
+    constGrad2 = "rgba(3,1,37,0) 0%, rgba(85,79,63,0.2) 15%, rgba(215,30,30,1) 17%, rgba(60,150,176,1) 21%, rgba(28,169,6,0.8827906162464986) 25%, rgba(28,169,6,1) 50%, rgba(255,0,0,1) 100%";
 }
