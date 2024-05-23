@@ -13,6 +13,7 @@ import shader_raymarcher_basic__frag from "./shaders/raymarcher-basic.frag";
 
 export default class Raymarcher {
     volumeTexture;
+    gradientTexture;
 
     positionTexture;
     positionMaterial;
@@ -65,7 +66,13 @@ export default class Raymarcher {
         this.raymarcherShader.onBeforeCompile = (shader) => {
             shader.fragmentShader = resolveInclude(shader.fragmentShader, "raymarcher.chunk.frag", shader_chunk_raymarcher_frag);
         };
+
         this.addRaymarcherUniforms(this.raymarcherShader.uniforms, resolution);
+    }
+
+    setGradientCanvas(canvas)
+    {
+        this.gradientTexture = new THREE.CanvasTexture(canvas, THREE.UVMapping, THREE.MirroredRepeatWrapping, THREE.MirroredRepeatWrapping, THREE.LinearFilter, THREE.LinearMipmapLinearFilter, THREE.RGBAFormat);
     }
 
     setVolume(volumeTexture, settings) {
@@ -97,6 +104,7 @@ export default class Raymarcher {
             u_positionTexture: { value: this.positionTexture.texture },
 
             u_volumeTexture: { value: undefined }, // To be set later
+            u_gradientTexture: { value: undefined },
             u_volumeMin: { value: 0 }, // To be set later
             u_volumeMax: { value: 0 }, // To be set later
 
@@ -115,6 +123,7 @@ export default class Raymarcher {
         shader.uniforms.u_volumeNoise.value = settings.noise;
 
         shader.uniforms.u_volumeTexture.value = this.volumeTexture;
+        shader.uniforms.u_gradientTexture.value = this.gradientTexture;
         shader.uniforms.u_volumeMin.value = settings.volumeMin;
         shader.uniforms.u_volumeMax.value = settings.volumeMax;
     }

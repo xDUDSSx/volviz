@@ -49,8 +49,8 @@ GradientApproximation approximateGradient(vec3 pos, float stepSize, vec3 viewRay
 }
 
 float shadingIntensity(vec3 normal, vec3 lightDir, vec3 viewDir, float diffuse, float specular, float shininess) {
-  float diff = clamp(dot(normal, lightDir), 0.0, 1.0);
-  vec3 halfVector = normalize(normal + viewDir);
+  float diff = clamp(dot(normal, -lightDir), 0.0, 1.0);
+  vec3 halfVector = normalize(-lightDir - viewDir);
   float spec = pow(max(dot(halfVector, normal), 0.0), shininess);
 
   return diff + spec;
@@ -74,19 +74,24 @@ vec4 raymarchContextPreserve(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
   vec3 pos = startPos;
   float step = 0.;
 
+  vec3 viewRay = -rayDir;
+
   for(int i = 0; i < stepCount; ++i) {
     if(step > stopDist) {
       break;
     }
 
-    GradientApproximation ga = approximateGradient(pos, stepSize, rayDir);
+    GradientApproximation ga = approximateGradient(pos, stepSize, viewRay);
     float sampleValue = sampleVolume(pos);
-    float opacity = getOpacityAt(sampleValue, oStart, oEnd);
-    vec3 color = getColorAt(sampleValue, gStart, gEnd);
+    //float opacity = getOpacityAt(sampleValue, oStart, oEnd);
+    //vec3 color = getColorAt(sampleValue, gStart, gEnd);
+    vec4 transfer = getColorAt(sampleValue);
+    float opacity = transfer.a;
+    vec3 color = transfer.rgb;
 
     float normalizedDistance = step / stopDist;
 
-    float shadingIntensity = shadingIntensity(ga.normal, lightDir, rayDir, 0.8, 0.4, 25.);
+    float shadingIntensity = shadingIntensity(ga.normal, lightDir, viewRay, 0.8, 0.4, 25.);
     float alpha = computeAlphaForContextPreserveStep(ga.magnitude, shadingIntensity, opacity, accumOpacity, normalizedDistance);
     float accumulationAlphaValue = alpha * (1. - accumOpacity);
     accumColor += color * accumulationAlphaValue;
@@ -115,7 +120,7 @@ float lightingImportanceFunction(float magnitude, vec3 normal, vec3 viewDir, vec
   const float p1 = 50.;
   const float p2 = 5.;
   const float p3 = 30.;
-  vec3 halfVector = normalize(normal + viewDir);
+  vec3 halfVector = normalize(viewDir - lightDir);
   float specular = pow(dot(normal, halfVector), p1);
   float diffuse = pow(dot(normal, lightDir), p2);
   float gradient = pow(1. - magnitude, p3);
@@ -152,7 +157,7 @@ float modulationFactor(float importance, float accumulatedImportance, float opac
   float visibility = visibilityFunction(importance, accumulatedImportance);
   if(1. - opacity >= visibility)
     return 1.;
-
+  opacity += 0.00001;
   return (1. - visibility) / opacity;
 }
 
@@ -161,6 +166,7 @@ vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
   float accumOpacity = 0.;
   float accumImportance = 0.;
 
+  vec3 viewRay = -rayDir;
   vec3 pos = startPos;
   float step = 0.;
 
@@ -168,9 +174,12 @@ vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
     float sampleValue = sampleVolume(pos);
     float opacity = getOpacityAt(sampleValue, oStart, oEnd);
     vec3 color = getColorAt(sampleValue, gStart, gEnd);
+    //vec4 transfer = getColorAt(sampleValue);
+    //float opacity = transfer.a;
+    //vec3 color = transfer.rgb;
 
-    GradientApproximation ga = approximateGradient(pos, stepSize, rayDir);
-    float importance = globalImportanceFunction(1., ga.magnitude, ga.normal, rayDir, lightDir);
+    GradientApproximation ga = approximateGradient(pos, stepSize, viewRay);
+    float importance = globalImportanceFunction(1., ga.magnitude, ga.normal, viewRay, lightDir);
     float modulation = modulationFactor(importance, accumImportance, accumOpacity);
     accumImportance = max(accumImportance, log(opacity + (1. - opacity) * exp(accumImportance - importance)) + importance);
 
@@ -244,10 +253,10 @@ void main() {
   float stepSize;
   int stepCount;
   float raySpanLen;
-  
+
   setupRaymarcher(coords, rayDir, frontPos, stepSize, stepCount, raySpanLen);
 
-  vec3 lightDir = normalize(vec3(-1., -1., -1.) - (frontPos + vec3(2., 2., 2.))); 
+  vec3 lightDir = normalize(vec3(-1., -1., -1.) - (frontPos + vec3(2., 2., 2.)));
   vec4 color;
 
   switch(u_mode) {

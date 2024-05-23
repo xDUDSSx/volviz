@@ -117,7 +117,6 @@ class Settings {
     volumeMin = 0;
     volumeMax = 0;
     
-    gradient = "";
     wgrad = 0.2;
     wsil = 0.5;
     wlight = 0.3;

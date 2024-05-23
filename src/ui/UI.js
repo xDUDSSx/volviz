@@ -1,6 +1,5 @@
 import DraggableTweakpane from "./draggable-tweakpane/draggable-tweakpane.js";
 import * as CamerakitPlugin from "@tweakpane/plugin-camerakit";
-
 import "./general.css";
 
 export default class UI {
@@ -212,7 +211,7 @@ export default class UI {
         });
         contextPreserve.addBinding(settings, "kt", {
             view: "slider",
-            min: 0.0,
+            min: 0.1,
             max: 15.0,
             step: 0.1,
             format: (v) => v.toFixed(3),

@@ -10,6 +10,7 @@ precision mediump sampler3D;
 uniform sampler2D u_positionTexture;
 
 uniform sampler3D u_volumeTexture;
+uniform sampler2D u_gradientTexture;
 uniform float u_volumeMin;
 uniform float u_volumeMax;
 
@@ -70,4 +71,11 @@ void setupRaymarcher(vec2 coords, out vec3 rayDir, out vec3 frontPos, out float 
     float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453);
     stepSize += u_volumeNoise * stepSize * random;
 }
+
+vec4 getColorAt(float value) {
+    vec2 texCoord = vec2(0.);
+    texCoord.s = value;
+    return texture(u_gradientTexture, texCoord);
+}
+
 // ================ END SHADER CHUNK (raymarcher.chunk.frag) ================
