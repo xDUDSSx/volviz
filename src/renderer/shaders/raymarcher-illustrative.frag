@@ -35,9 +35,9 @@ GradientApproximation approximateGradient(vec3 pos, float stepSize, vec3 viewRay
   vec3 yStep = vec3(0., stepSize * 0.5, 0.);
   vec3 zStep = vec3(0., 0., stepSize * 0.5);
 
-  ga.gradient.x = sampleVolume(pos + xStep) - sampleVolume(pos - xStep);
-  ga.gradient.y = sampleVolume(pos + yStep) - sampleVolume(pos - yStep);
-  ga.gradient.z = sampleVolume(pos + zStep) - sampleVolume(pos - zStep);
+  ga.gradient.x = sampleVolume(pos - xStep) - sampleVolume(pos + xStep);
+  ga.gradient.y = sampleVolume(pos - yStep) - sampleVolume(pos + yStep);
+  ga.gradient.z = sampleVolume(pos - zStep) - sampleVolume(pos + zStep);
 
   ga.magnitude = length(ga.gradient) + 0.00001;
   ga.normal = ga.gradient / ga.magnitude;
@@ -50,7 +50,7 @@ GradientApproximation approximateGradient(vec3 pos, float stepSize, vec3 viewRay
 
 float shadingIntensity(vec3 normal, vec3 lightDir, vec3 viewDir, float diffuse, float specular, float shininess) {
   float diff = clamp(dot(normal, -lightDir), 0.0, 1.0);
-  vec3 halfVector = normalize(-lightDir - viewDir);
+  vec3 halfVector = normalize(-lightDir + viewDir);
   float spec = pow(max(dot(halfVector, normal), 0.0), shininess);
 
   return diff + spec;
@@ -120,7 +120,7 @@ float lightingImportanceFunction(float magnitude, vec3 normal, vec3 viewDir, vec
   const float p1 = 50.;
   const float p2 = 5.;
   const float p3 = 30.;
-  vec3 halfVector = normalize(viewDir - lightDir);
+  vec3 halfVector = normalize(viewDir + lightDir);
   float specular = pow(dot(normal, halfVector), p1);
   float diffuse = pow(dot(normal, lightDir), p2);
   float gradient = pow(1. - magnitude, p3);
@@ -172,11 +172,11 @@ vec4 raymarchImportanceAware(vec3 rayDir, vec3 lightDir, vec3 startPos, float st
 
   for(int i = 0; i < stepCount && step <= stopDist; ++i) {
     float sampleValue = sampleVolume(pos);
-    float opacity = getOpacityAt(sampleValue, oStart, oEnd);
-    vec3 color = getColorAt(sampleValue, gStart, gEnd);
-    //vec4 transfer = getColorAt(sampleValue);
-    //float opacity = transfer.a;
-    //vec3 color = transfer.rgb;
+    //float opacity = getOpacityAt(sampleValue, oStart, oEnd);
+    //vec3 color = getColorAt(sampleValue, gStart, gEnd);
+    vec4 transfer = getColorAt(sampleValue);
+    float opacity = transfer.a;
+    vec3 color = transfer.rgb;
 
     GradientApproximation ga = approximateGradient(pos, stepSize, viewRay);
     float importance = globalImportanceFunction(1., ga.magnitude, ga.normal, viewRay, lightDir);

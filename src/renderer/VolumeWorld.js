@@ -38,6 +38,11 @@ export default class VolumeWorld {
         linearGradient.addColorStop(0.25, "rgba(28,169,6,0.8827906162464986)");
         linearGradient.addColorStop(0.5, "rgba(28,169,6,1)");
         linearGradient.addColorStop(1.0, "rgba(255,0,0,1)");
+        //linearGradient.addColorStop(0, "rgba(1,1,1,0)");
+        //linearGradient.addColorStop(0.25, "rgba(0,52,127,0.22)");
+        //linearGradient.addColorStop(0.4, "rgba(255,0,0,1)");
+        //linearGradient.addColorStop(1.0, "rgba(255,0,0,1)");
+
         ctx.fillStyle = linearGradient;
         ctx.fillRect(0, 0, 500, 1);
 
