@@ -11,8 +11,11 @@ export default class Clearview {
     raymarcher;
     cube;
 
-    isosurface1Target1;
-    isosurface1Target2;
+    isovalue1;
+    isovalue2;
+
+    isosurface1Target;
+    isosurface2Target;
 
     clearviewShader;
 
@@ -21,11 +24,11 @@ export default class Clearview {
      * @param {THREE.Vector2} resolution 
      * @param {THREE.BufferGeometry} cube
      */
-    constructor(raymarcher, resolution, box) {
+    constructor(raymarcher, resolution, box, settings) {
         this.raymarcher = raymarcher;
 
-        this.isosurface1Target1 = this.raymarcher.createIsosurfaceRenderTarget(resolution);
-        this.isosurface1Target2 = this.raymarcher.createIsosurfaceRenderTarget(resolution);
+        this.isosurface1Target = this.raymarcher.createIsosurfaceRenderTarget(resolution);
+        this.isosurface2Target = this.raymarcher.createIsosurfaceRenderTarget(resolution);
 
         this.clearviewShader = new THREE.ShaderMaterial( {
             name: "Clearview Shader",
@@ -33,11 +36,12 @@ export default class Clearview {
             fragmentShader: shader_clearview_frag,
             uniforms: {
                 u_resolution: { value: new THREE.Vector2(resolution.x, resolution.y) },
+                u_focusPoint: { value: settings.controlPointLocation },
                 u_worldSpaceLight: { value: false },
-                u_iso1PositionTexture: { value: this.isosurface1Target1.textures[0] },
-                u_iso1NormalTexture: { value: this.isosurface1Target1.textures[1] },
-                // u_isovalue: { value: 0.5 },
-                // u_normalSampleFactor: { value: 1.0 },
+                u_iso1PosTex: { value: this.isosurface1Target.textures[0] },
+                u_iso1NormalTex: { value: this.isosurface1Target.textures[1] },
+                u_iso2PosTex: { value: this.isosurface2Target.textures[0] },
+                u_iso2NormalTex: { value: this.isosurface2Target.textures[1] },
             },
             transparent: true,
             side: THREE.BackSide,
@@ -55,23 +59,26 @@ export default class Clearview {
      * @param {THREE.PerspectiveCamera} camera
      */
     render(renderer, camera) {
-        this.raymarcher.renderIsosurface(renderer, camera, this.isosurface1Target1);
-        // this.raymarcher.renderIsosurface(renderer, camera, this.isosurface1Target2);
+        this.raymarcher.renderIsosurface(renderer, camera, this.isosurface1Target, this.isovalue1);
+        this.raymarcher.renderIsosurface(renderer, camera, this.isosurface2Target, this.isovalue2);
 
         renderer.setRenderTarget(null);
-        renderer.setClearAlpha(1);
         renderer.render(this.cube, camera);
     }
 
     update(settings) {
+        this.isovalue1 = settings.isovalue1;
+        this.isovalue2 = settings.isovalue2;
+
+        this.clearviewShader.uniforms.u_focusPoint.value = settings.controlPointLocation;
         this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
         // this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
     }
 
     resize(realWidth, realHeight) {
-        this.isosurface1Target1.setSize(realWidth, realHeight);
-        this.isosurface1Target2.setSize(realWidth, realHeight);
+        this.isosurface1Target.setSize(realWidth, realHeight);
+        this.isosurface2Target.setSize(realWidth, realHeight);
 
         this.clearviewShader.uniforms.u_resolution.value = new THREE.Vector2(realWidth, realHeight);
     }

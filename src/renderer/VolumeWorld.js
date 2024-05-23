@@ -16,7 +16,7 @@ export default class VolumeWorld {
     /**
      * @param {THREE.WebGLRenderer} renderer
      */
-    constructor(renderer, settings) {
+    constructor(renderer, camera, settings) {
         this.settings = settings;
 
         this.scene = new THREE.Scene();
@@ -30,8 +30,17 @@ export default class VolumeWorld {
         // const lights = new BasicLights();
         // this.scene.add(lights);
 
-        const axesHelper = new THREE.AxesHelper(2);
-        this.scene.add(axesHelper);
+        const size = 2;
+        const divisions = 10;
+
+        this.gridHelper = new THREE.GridHelper( size, divisions );
+        this.gridHelper.position.set(0, -0.001, 0);
+        this.gridHelper.visible = settings.axesVisible;
+        this.scene.add(this.gridHelper);
+
+        this.axesHelper = new THREE.AxesHelper(2);
+        this.axesHelper.visible = settings.axesVisible;
+        this.scene.add(this.axesHelper);
     }
     
     loadCTHead(ui) {
@@ -49,14 +58,15 @@ export default class VolumeWorld {
 
             let volumeBox = this.raymarcher.setVolume(volumeTexture, this.settings);
             
-            // Create the cube object for rendering back faces using the raymarcher
-            let cube = new THREE.Mesh(volumeBox, this.raymarcher.raymarcherShader);
-            this.scene.add(cube);
+            // let cube = new THREE.Mesh(volumeBox, this.raymarcher.raymarcherShader);
+            // this.scene.add(cube);
 
             let rendererSize = new THREE.Vector2();
             this.renderer.getSize(rendererSize);
-            this.clearview = new Clearview(this.raymarcher, rendererSize, volumeBox);
-            this.illustrativeRaymarcher = new IllustrativeRaymarcher(this.raymarcher, rendererSize, volumeBox);
+
+            this.clearview = new Clearview(this.raymarcher, rendererSize, volumeBox, this.settings);
+            
+            this.illustrativeRaymarcher = new IllustrativeRaymarcher(this.raymarcher, rendererSize, volumeBox);            
         });
     }
 
@@ -65,9 +75,14 @@ export default class VolumeWorld {
      * @param {THREE.PerspectiveCamera} camera
      */
     render(renderer, camera) {
+        renderer.setRenderTarget(null);
+        renderer.setClearAlpha(1);
+        renderer.clear();
+
         // First pass: render positions of the front side of the volume cube
         this.raymarcher.renderRaymarcherPositionCube(renderer, camera);
 
+        // Second pass: render the back sides of the volume cube with the appropriate shader.
         switch (this.settings.method)
         {
         case 0:
@@ -79,18 +94,18 @@ export default class VolumeWorld {
             if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.render(renderer, camera);
             break;
         }
-        // this.raymarcher.renderIsosurface(renderer, camera);
 
-        // Second pass: render the back sides of the volume cube with the raymarching shader.
-        // renderer.setRenderTarget(null);
-        // renderer.setClearAlpha(1);
-        // renderer.render(this.scene, camera);
+        // Third pass: render anything else in the scene (grid/axes helper)
+        renderer.render(this.scene, camera);
     }
 
     update() {
         this.raymarcher.update(this.settings);
         if (this.clearview) this.clearview.update(this.settings);
         if (this.illustrativeRaymarcher) this.illustrativeRaymarcher.update(this.settings);
+
+        this.gridHelper.visible = this.settings.axesVisible;
+        this.axesHelper.visible = this.settings.axesVisible;
     }
 
     resize(width, height, pixelRatio = window.devicePixelRatio) {

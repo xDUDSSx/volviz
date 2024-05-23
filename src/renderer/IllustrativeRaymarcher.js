@@ -51,7 +51,6 @@ export default class IllustrativeRaymarcher {
      */
     render(renderer, camera) {
         renderer.setRenderTarget(null);
-        renderer.setClearAlpha(1);
         renderer.render(this.cube, camera);
     }
 

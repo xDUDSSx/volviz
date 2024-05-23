@@ -58,7 +58,7 @@ export default class UI {
 
         this.pane.addBinding(settings, "samples", {
             min: 1,
-            max: 400,
+            max: 512,
             step: 1
         });
         this.pane.addBinding(settings, "noise", {
@@ -68,20 +68,19 @@ export default class UI {
             max: 1.0,
             format: (v) => v.toFixed(3),
         });
+        this.pane.addBinding(settings, "axesVisible", {
+            label: "show axes"
+        });
+
 
         const clearview = this.pane.addFolder({
             title: "ClearView",
-            expanded: false,
+            expanded: true,
         });
-        clearview.addBinding(settings, "normalSampleFactor", {
-            label: "normal factor",
-            // view: "camerawheel",
-            // amount: -0.001,
-            min: 0.0,
-            max: 2.0,
-            format: (v) => v.toFixed(3),
+        clearview.addBinding(settings, "controlPointVisible", {
+            label: "edit focus point"
         });
-        clearview.addBinding(settings, "isovalue1", {
+        let isovalueSettings = {
             view: "cameraring",
             series: 1,
             unit: {
@@ -94,6 +93,17 @@ export default class UI {
             },
             min: 0.0,
             max: 1.0,
+            format: (v) => v.toFixed(3),
+        };
+        clearview.addBinding(settings, "isovalue1", isovalueSettings);
+        clearview.addBinding(settings, "isovalue2", isovalueSettings);
+
+        clearview.addBinding(settings, "normalSampleFactor", {
+            label: "normal factor",
+            // view: "camerawheel",
+            // amount: -0.001,
+            min: 0.0,
+            max: 2.0,
             format: (v) => v.toFixed(3),
         });
         clearview.addBinding(settings, "worldSpaceLighting", {

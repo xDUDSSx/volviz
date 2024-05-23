@@ -178,6 +178,7 @@ export default class Raymarcher {
 
         renderer.setRenderTarget(this.positionTexture);
         renderer.setClearAlpha(0); // Set clear alpha to 0 to avoid artefacts in the raymarcher later
+        renderer.clear();
         renderer.render(this.volumeCube, camera);
     }
 
@@ -186,12 +187,16 @@ export default class Raymarcher {
      * @param {THREE.PerspectiveCamera} camera
      * @param {THREE.WebGLRenderTarget} target
      */
-    renderIsosurface(renderer, camera, target) {
+    renderIsosurface(renderer, camera, target, isovalue) {
         if (this.isosurfaceCube == undefined)
             return;
 
+        this.isosurfaceShader.uniforms.u_isovalue.value = isovalue;
+        this.isosurfaceShader.uniformsNeedUpdate = true;
+
         renderer.setRenderTarget(target);
         renderer.setClearAlpha(0);
+        renderer.clear();
         renderer.render(this.isosurfaceCube, camera);
     }
 
@@ -201,7 +206,6 @@ export default class Raymarcher {
         this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
 
-        this.isosurfaceShader.uniforms.u_isovalue.value = settings.isovalue1;
         this.isosurfaceShader.uniforms.u_normalSampleFactor.value = settings.normalSampleFactor;
     }
 
