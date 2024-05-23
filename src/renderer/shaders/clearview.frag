@@ -5,6 +5,9 @@ varying vec3 aPos;
 uniform vec2 u_resolution;
 
 uniform vec3 u_focusPoint;
+uniform float u_focusArea;
+uniform float u_focusAreaSharpness;
+uniform int u_importanceMethod;
 uniform bool u_worldSpaceLight;
 
 uniform sampler2D u_iso1PosTex;
@@ -23,14 +26,6 @@ struct Material {
 float easeOutPower(float x, float power) {
     return 1.0 - pow(1.0 - x, power);
 }
-
-float easeInPower(float x, float power) {
-    return 1.0 - pow(1.0 - x, power);
-}
-
-// float easeInPower(float x, float power) {
-//     return 1.0 - pow(1.0 - x, power);
-// }
 
 vec3 calculateLighting(vec3 normal, vec3 lightDir, vec3 viewDir, Material material) {
     vec3 L = normalize(-lightDir);
@@ -101,20 +96,30 @@ void main() {
 
     // View distance based importance
 
-    float focusArea = 0.5;
-
     vec3 contextPos = iso1Position.xyz;
     vec3 focusPos = iso2Position.xyz;
 
-    // float fadeHeuristic = length(contextPos - focusPos);
-    float fadeHeuristic = 0.;
-    float fade = length(u_focusPoint - contextPos) / focusArea;
+    float trans;
+    switch (u_importanceMethod) {
+        case 0: {
+            float fadeHeuristic = length(contextPos - focusPos);
+            float fade = length(u_focusPoint - contextPos) / u_focusArea;
 
-    float trans = 1. - pow(clamp(max(fade, fadeHeuristic), 0., 1.), 5.);
+            trans = 1. - pow(clamp(max(fade, fadeHeuristic), 0., 1.), u_focusAreaSharpness);
+            break;
+        }
+        case 1:
+            float fade = length(u_focusPoint - contextPos) / u_focusArea;
+
+            trans = 1. - pow(clamp(max(fade, 0.0), 0., 1.), u_focusAreaSharpness);
+            break;
+    }
 
     gl_FragColor = iso1Color * (1. - trans) + iso2Color * trans;
 
     // gl_FragColor = vec4(vec3(trans), 1.0);
+    // gl_FragColor = vec4(vec3(trans), 1.0);
+
     // if (coords.x > 0.5) {
     //     gl_FragColor = iso1Color;
     // } else {

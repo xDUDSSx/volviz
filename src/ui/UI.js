@@ -80,6 +80,28 @@ export default class UI {
         clearview.addBinding(settings, "controlPointVisible", {
             label: "edit focus point"
         });
+        clearview.addBinding(settings, "focusArea", {
+            label: "focus area",
+            min: 0.0,
+            max: 2.0,
+        });
+        clearview.addBinding(settings, "focusAreaSharpness", {
+            label: "focus sharpness",
+            min: 1.0,
+            max: 10.0,
+        });
+        clearview.addBlade({
+            view: "list",
+            label: "importance method",
+            options: [
+                {text: "view distance", value: 0},
+                {text: "distance", value: 1},
+            ],
+            value: settings.importanceMethod,
+        }).on("change", (e) => {
+            settings.importanceMethod = e.value;
+        });
+
         let isovalueSettings = {
             view: "cameraring",
             series: 1,
@@ -107,7 +129,7 @@ export default class UI {
             format: (v) => v.toFixed(3),
         });
         clearview.addBinding(settings, "worldSpaceLighting", {
-            label: "World space shading"
+            label: "world space shading"
         });
 
         const importanceAware = this.pane.addFolder({

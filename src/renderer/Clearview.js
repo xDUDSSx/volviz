@@ -37,6 +37,9 @@ export default class Clearview {
             uniforms: {
                 u_resolution: { value: new THREE.Vector2(resolution.x, resolution.y) },
                 u_focusPoint: { value: settings.controlPointLocation },
+                u_focusArea: { value: settings.focusArea },
+                u_focusAreaSharpness: { value: settings.focusAreaSharpness },
+                u_importanceMethod: { value: settings.importanceMethod },
                 u_worldSpaceLight: { value: false },
                 u_iso1PosTex: { value: this.isosurface1Target.textures[0] },
                 u_iso1NormalTex: { value: this.isosurface1Target.textures[1] },
@@ -71,6 +74,9 @@ export default class Clearview {
         this.isovalue2 = settings.isovalue2;
 
         this.clearviewShader.uniforms.u_focusPoint.value = settings.controlPointLocation;
+        this.clearviewShader.uniforms.u_focusArea.value = settings.focusArea;
+        this.clearviewShader.uniforms.u_focusAreaSharpness.value = settings.focusAreaSharpness;
+        this.clearviewShader.uniforms.u_importanceMethod.value = settings.importanceMethod;
         this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
         // this.updateRaymarcherUniforms(this.raymarcherShader, settings);
         // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);

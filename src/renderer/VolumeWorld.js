@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import BasicLights from "./objects/Lights.js";
+// import BasicLights from "./objects/Lights.js";
 import Loader from "./Loader.js";
 import Raymarcher from "./Raymarcher.js";
 import Clearview from "./Clearview.js";
