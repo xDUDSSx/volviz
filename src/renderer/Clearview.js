@@ -42,6 +42,8 @@ export default class Clearview {
                 u_importanceMethod: { value: settings.importanceMethod },
                 u_importanceStrength: { value: 1.0 },
                 u_worldSpaceLight: { value: false },
+                u_color1: { value: settings.isoColor1 },
+                u_color2: { value: settings.isoColor2 },
                 u_iso1PosTex: { value: this.isosurface1Target.textures[0] },
                 u_iso1NormalTex: { value: this.isosurface1Target.textures[1] },
                 u_iso2PosTex: { value: this.isosurface2Target.textures[0] },
@@ -86,7 +88,9 @@ export default class Clearview {
             this.clearviewShader.uniforms.u_importanceStrength.value = settings.curvatureMultiplier;
         }
         this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
-        // this.updateRaymarcherUniforms(this.raymarcherShader, settings);
+        this.clearviewShader.uniforms.u_color1.value = settings.isoColor1;
+        this.clearviewShader.uniforms.u_color2.value = settings.isoColor2;
+
         // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
     }
 

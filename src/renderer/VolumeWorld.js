@@ -1,5 +1,5 @@
 import * as THREE from "three";
-// import BasicLights from "./objects/Lights.js";
+import BasicLights from "./objects/Lights.js";
 import Loader from "./Loader.js";
 import Raymarcher from "./Raymarcher.js";
 import Clearview from "./Clearview.js";
@@ -27,8 +27,8 @@ export default class VolumeWorld {
 
         this.raymarcher = new Raymarcher(rendererSize);
         this.raymarcher.setGradientCanvas(settings.gradientCanvas);
-        // const lights = new BasicLights();
-        // this.scene.add(lights);
+        const lights = new BasicLights();
+        this.scene.add(lights);
 
         const size = 2;
         const divisions = 10;
@@ -44,11 +44,31 @@ export default class VolumeWorld {
     }
     
     loadCTHead(ui) {
+        let wireframe = new THREE.LineSegments(
+            new THREE.EdgesGeometry(new THREE.BoxGeometry(2, 2, 2)), 
+            new THREE.LineBasicMaterial({color: 0xffffff, linewidth: 2 })
+        );
+        this.scene.add(wireframe);
+
+        let loadingBox = new THREE.Mesh(
+            new THREE.BoxGeometry(2, 2, 2), 
+            new THREE.MeshLambertMaterial({color: 0x3fb4f2, transparent: true, opacity: 0.5})
+        );
+        this.scene.add(loadingBox);
+
         let loadingCallback = (val) => {
             ui.loadingButton.title = Math.round(val * 100) + " %";
+            loadingBox.matrixAutoUpdate = false;
+            let t = new THREE.Matrix4().makeTranslation(new THREE.Vector3(0, 1, 0));
+            let ti = new THREE.Matrix4().copy(t).invert();
+            let s = new THREE.Matrix4().makeScale(1, val, 1);
+            loadingBox.matrixWorld.copy(ti.multiply(s).multiply(t));
+            loadingBox.matrix.copy(loadingBox.matrixWorld);
         };
         Loader.loadCTHeadTexture(loadingCallback).then((textureData) => {
             ui.loadingPane.hidden = true;
+            this.scene.remove(wireframe);
+            this.scene.remove(loadingBox);
             
             // Assign the loaded volume texture to the shader
             let {texture: volumeTexture, dataMin, dataMax} = textureData;

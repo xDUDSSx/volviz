@@ -5,3 +5,7 @@ html {
 * {
     --bld-vw: var(--tp-blade-value-width, 220px); /* Make tweakpane a little wider*/
 }
+
+.draggable-tweakpane {
+    min-width: 310px;
+}

@@ -30,7 +30,6 @@
 .draggable-tweakpane {
     position: absolute;
     z-index: 9;
-    overflow: hidden;
 }
 
 .draggable-tweakpane-header {

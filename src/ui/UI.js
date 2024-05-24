@@ -29,23 +29,23 @@ export default class UI {
         }).on("change", (e) => {
             settings.method = e.value;
             switch (settings.method) {
-                case 0:
-                    clearview.expanded = true;
-                    contextPreserve.expanded = false;
-                    importanceAware.expanded = false;
+            case 0:
+                clearview.expanded = true;
+                contextPreserve.expanded = false;
+                importanceAware.expanded = false;
 
-                    clearview.hidden = false;
-                    contextPreserve.hidden = true;
-                    importanceAware.hidden = true;
-                    break;
-                default:
-                    clearview.expanded = false;
-                    contextPreserve.expanded = true;
-                    importanceAware.expanded = true;
+                clearview.hidden = false;
+                contextPreserve.hidden = true;
+                importanceAware.hidden = true;
+                break;
+            default:
+                clearview.expanded = false;
+                contextPreserve.expanded = true;
+                importanceAware.expanded = true;
 
-                    clearview.hidden = true;
-                    contextPreserve.hidden = false;
-                    importanceAware.hidden = false;
+                clearview.hidden = true;
+                contextPreserve.hidden = false;
+                importanceAware.hidden = false;
             }
         });
 
@@ -69,8 +69,6 @@ export default class UI {
             step: 1
         });
         this.pane.addBinding(settings, "noise", {
-            view: "camerawheel",
-            amount: -0.001,
             min: 0.0,
             max: 1.0,
             format: (v) => v.toFixed(3),
@@ -125,17 +123,17 @@ export default class UI {
         }).on("change", (e) => {
             settings.importanceMethod = e.value;
             switch (settings.importanceMethod) {
-                case 0:
-                    curvatureMultiplier.hidden = true;
-                    distanceMultiplier.hidden = false;
-                    break;
-                case 3:
-                    curvatureMultiplier.hidden = false;
-                    distanceMultiplier.hidden = true;
-                    break;
-                default:
-                    curvatureMultiplier.hidden = true;
-                    distanceMultiplier.hidden = true;
+            case 0:
+                curvatureMultiplier.hidden = true;
+                distanceMultiplier.hidden = false;
+                break;
+            case 3:
+                curvatureMultiplier.hidden = false;
+                distanceMultiplier.hidden = true;
+                break;
+            default:
+                curvatureMultiplier.hidden = true;
+                distanceMultiplier.hidden = true;
             }
         });
         let curvatureMultiplier = clearview.addBinding(settings, "curvatureMultiplier", {
@@ -172,16 +170,24 @@ export default class UI {
         clearview.addBinding(settings, "isovalue1", isovalueSettings);
         clearview.addBinding(settings, "isovalue2", isovalueSettings);
 
+        clearview.addBinding(settings, "isoColor1", {
+            label: "color1",
+            color: {type: "float"},
+        });
+        clearview.addBinding(settings, "isoColor2", {
+            label: "color2",
+            color: {type: "float"},
+        });
+        clearview.addBinding(settings, "worldSpaceLighting", {
+            label: "world space shading"
+        });
         clearview.addBinding(settings, "normalSampleFactor", {
-            label: "normal factor",
+            label: "normal smoothing",
             // view: "camerawheel",
             // amount: -0.001,
             min: 0.0,
             max: 2.0,
             format: (v) => v.toFixed(3),
-        });
-        clearview.addBinding(settings, "worldSpaceLighting", {
-            label: "world space shading"
         });
 
         const importanceAware = this.pane.addFolder({

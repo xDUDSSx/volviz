@@ -66,7 +66,7 @@ void setupRaymarcher(vec2 coords, out vec3 rayDir, out vec3 frontPos, out float 
     float longestSpan = length(vec3(2., 2., 2.));
     stepSize = longestSpan / float(stepCount);
 
-    // Randomly offset raydir to "dither" aliasing
+    // Randomly offset stepsize to "dither" aliasing
     // https://www.marcusbannerman.co.uk/articles/VolumeRendering.html
     float random = fract(sin(gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233) * 43758.5453);
     stepSize += u_volumeNoise * stepSize * random;

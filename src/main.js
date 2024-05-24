@@ -112,11 +112,14 @@ class Settings {
     curvatureMultiplier = 1.0;
     distanceMultiplier = 4.0;
     worldSpaceLighting = false;
-    
+
+    isoColor1 = new THREE.Color(0.56, 0.72, 0.91);
+    isoColor2 = new THREE.Color(0.9, 0.87, 0.87);
+
     isovalue1 = 0.22;
     isovalue2 = 0.51;
 
-    normalSampleFactor = 1.0;
+    normalSampleFactor = 1.38; // Reduces isosurface jagged edges
 
     volumeMin = 0;
     volumeMax = 0;

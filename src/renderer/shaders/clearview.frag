@@ -11,6 +11,9 @@ uniform int u_importanceMethod;
 uniform float u_importanceStrength;
 uniform bool u_worldSpaceLight;
 
+uniform vec3 u_color1;
+uniform vec3 u_color2;
+
 uniform sampler2D u_iso1PosTex;
 uniform sampler2D u_iso1NormalTex;
 
@@ -79,19 +82,16 @@ float calculateCurvature(ivec2 fragCoord, vec4 fragNormal, in sampler2D normalSa
 }
 
 void main() {
-    vec3 color1 = vec3(0.56, 0.72, 0.91);
-    vec3 color2 = vec3(0.9, 0.87, 0.87);
-
     Material material1;
-    material1.ambient = color1 * 0.08;
-    material1.diffuse = color1 * 0.76;
-    material1.specular = color1 * 0.76;
+    material1.ambient = u_color1 * 0.08;
+    material1.diffuse = u_color1 * 0.76;
+    material1.specular = u_color1 * 0.76;
     material1.shininess = 40.0;
 
     Material material2;
-    material2.ambient = color2 * 0.08;
-    material2.diffuse = color2 * 0.76;
-    material2.specular = color2 * 0.76;
+    material2.ambient = u_color2 * 0.08;
+    material2.diffuse = u_color2 * 0.76;
+    material2.specular = u_color2 * 0.76;
     material2.shininess = 40.0;
 
     // Material material2 = Material(vec3(0.08), vec3(0.76), vec3(1.0), 100.0);
@@ -137,6 +137,5 @@ void main() {
             break;
         }
     }
-
     gl_FragColor = iso1Color * (1. - trans) + iso2Color * trans;
 }
