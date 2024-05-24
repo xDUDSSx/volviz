@@ -48,4 +48,11 @@ html {
     min-width: 310px;
 }
 
+#corner-div {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin-left: 4px;
+}
+
 /*# sourceMappingURL=main.css.map*/
