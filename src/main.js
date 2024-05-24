@@ -111,6 +111,7 @@ class Settings {
     importanceMethod = 3;
     curvatureMultiplier = 1.0;
     distanceMultiplier = 4.0;
+    normalDistanceMultiplier = 10.0;
     worldSpaceLighting = false;
 
     isoColor1 = new THREE.Color(0.56, 0.72, 0.91);

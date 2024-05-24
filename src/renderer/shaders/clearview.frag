@@ -4,6 +4,8 @@ varying vec3 aPos;
 
 uniform vec2 u_resolution;
 
+#include <raymarcher.chunk.frag>
+
 uniform vec3 u_focusPoint;
 uniform float u_focusArea;
 uniform float u_focusAreaSharpness;
@@ -19,6 +21,8 @@ uniform sampler2D u_iso1NormalTex;
 
 uniform sampler2D u_iso2PosTex;
 uniform sampler2D u_iso2NormalTex;
+
+uniform float u_isovalue2;
 
 struct Material {
     vec3 ambient;
@@ -81,6 +85,31 @@ float calculateCurvature(ivec2 fragCoord, vec4 fragNormal, in sampler2D normalSa
     return curvature;
 }
 
+float calculateNormalDistance(vec3 startPos, vec3 normal, float isoThreshold, float stepSize, float stopDist) {
+    // Raymarch from the position, along the inverse of the normal until you hit another isosurface
+    vec3 rayDir = -normal;
+    vec3 pos = startPos;
+
+    float step = 0.;
+
+    int stepCount = int(stopDist / stepSize);
+
+    for (int i = 0; i < stepCount; i++) {
+        float density = sampleVolume(pos);
+
+        if (density > isoThreshold) {
+            return step;
+        }
+
+        if (step > stopDist) {
+            break;
+        }
+        step += stepSize;
+        pos += rayDir * stepSize;
+    }
+    return 1.0 * 1.0 / u_importanceStrength; // Isosurface too far away
+}
+
 void main() {
     Material material1;
     material1.ambient = u_color1 * 0.08;
@@ -123,9 +152,20 @@ void main() {
             trans = 1. - pow(clamp(max(fade, fadeHeuristic), 0., 1.), u_focusAreaSharpness);
             break;
         }
+        // Normal distance based importance
+        case 4: {
+            float normalDistance = 0.0;
+            if (fade <= 1.0) {
+                float longestSpan = u_focusArea * 2.0;
+                float stepSize = longestSpan / (float(u_volumeSamples) * 0.6); // TODO: Maybe create separate sample count slider in the UI for this
+                normalDistance = calculateNormalDistance(iso1Position.xyz, iso1Normal.xyz, u_isovalue2, stepSize, longestSpan);
+                normalDistance *= u_importanceStrength;
+            }
+            trans = 1. - pow(clamp(max(fade, normalDistance), 0., 1.), u_focusAreaSharpness);
+            break;
+        }
         // Distance based importance
         case 1: {
-            float fade = length(u_focusPoint - contextPos) / u_focusArea;
             trans = 1. - pow(clamp(fade, 0., 1.), u_focusAreaSharpness);
             break;
         }

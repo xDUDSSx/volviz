@@ -86,14 +86,6 @@ void main() {
 
     setupRaymarcher(coords, rayDir, frontPos, stepSize, stepCount, raySpanLen);
 
-    // vec4 color;
-
-    // color = raymarchAccumulate(rayDir, frontPos, stepSize, stepCount, raySpanLen);
-    // color = raymarchAverage(rayDir, frontPos, stepSize, stepCount, raySpanLen);
-
-    // oPosition = color;
-    // oNormal = vec4(vec3(raySpanLen), 1.0);
-
     IsosurfacePoint point = raymarchIsosurface(rayDir, frontPos, stepSize, stepCount, raySpanLen, u_isovalue);
     oPosition = point.position;
     oNormal = point.normal;

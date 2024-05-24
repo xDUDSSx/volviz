@@ -17,7 +17,7 @@ export default class UI {
             expanded: true,
         });
         this.pane.registerPlugin(CamerakitPlugin);
-
+        
         this.pane.addBlade({
             view: "list",
             label: "method",
@@ -48,7 +48,7 @@ export default class UI {
                 importanceAware.hidden = false;
             }
         });
-
+        
         this.pane.addBlade({
             view: "list",
             label: "mode",
@@ -116,6 +116,7 @@ export default class UI {
             label: "importance method",
             options: [
                 { text: "view distance", value: 0 },
+                { text: "normal distance", value: 4 },
                 { text: "distance", value: 1 },
                 { text: "curvature", value: 3 },
             ],
@@ -126,14 +127,22 @@ export default class UI {
             case 0:
                 curvatureMultiplier.hidden = true;
                 distanceMultiplier.hidden = false;
+                normalDistanceMultiplier.hidden = true;
                 break;
             case 3:
                 curvatureMultiplier.hidden = false;
                 distanceMultiplier.hidden = true;
+                normalDistanceMultiplier.hidden = true;
+                break;
+            case 4:
+                curvatureMultiplier.hidden = true;
+                distanceMultiplier.hidden = true;
+                normalDistanceMultiplier.hidden = false;
                 break;
             default:
                 curvatureMultiplier.hidden = true;
                 distanceMultiplier.hidden = true;
+                normalDistanceMultiplier.hidden = true;
             }
         });
         let curvatureMultiplier = clearview.addBinding(settings, "curvatureMultiplier", {
@@ -146,8 +155,14 @@ export default class UI {
             min: 0.0,
             max: 20.0,
         });
+        let normalDistanceMultiplier = clearview.addBinding(settings, "normalDistanceMultiplier", {
+            label: "distance strength",
+            min: 0.0,
+            max: 20.0,
+        });
         curvatureMultiplier.hidden = false;
         distanceMultiplier.hidden = true;
+        normalDistanceMultiplier.hidden = true;
 
         clearview.addBlade({
             view: "separator",

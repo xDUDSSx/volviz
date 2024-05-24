@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
-// import {resolveInclude} from "~/utils.js";
+import {resolveInclude} from "~/utils.js";
 
-// import shader_chunk_raymarcher_frag from "./shaders/chunks/raymarcher.chunk.frag";
+import shader_chunk_raymarcher_frag from "./shaders/chunks/raymarcher.chunk.frag";
 import shader_clearview_frag from "./shaders/clearview.frag";
 import shader_basic_vert from "./shaders/basic.vert";
 import "./Raymarcher.js";
@@ -44,6 +44,7 @@ export default class Clearview {
                 u_worldSpaceLight: { value: false },
                 u_color1: { value: settings.isoColor1 },
                 u_color2: { value: settings.isoColor2 },
+                u_isovalue2: { value: settings.isovalue2 },
                 u_iso1PosTex: { value: this.isosurface1Target.textures[0] },
                 u_iso1NormalTex: { value: this.isosurface1Target.textures[1] },
                 u_iso2PosTex: { value: this.isosurface2Target.textures[0] },
@@ -52,10 +53,10 @@ export default class Clearview {
             transparent: true,
             side: THREE.BackSide,
         } );
-        // this.clearviewShader.onBeforeCompile = (shader) => {
-        //     shader.fragmentShader = resolveInclude(shader.fragmentShader, "raymarcher.chunk.frag", shader_chunk_raymarcher_frag);
-        // };
-        // this.addRaymarcherUniforms(this.isosurfaceShader.uniforms, resolution);
+        this.clearviewShader.onBeforeCompile = (shader) => {
+            shader.fragmentShader = resolveInclude(shader.fragmentShader, "raymarcher.chunk.frag", shader_chunk_raymarcher_frag);
+        };
+        this.raymarcher.addRaymarcherUniforms(this.clearviewShader.uniforms, resolution);
 
         this.cube = new THREE.Mesh(box, this.clearviewShader);
 
@@ -86,12 +87,15 @@ export default class Clearview {
             this.clearviewShader.uniforms.u_importanceStrength.value = settings.distanceMultiplier;
         } else if (settings.importanceMethod == 3) {
             this.clearviewShader.uniforms.u_importanceStrength.value = settings.curvatureMultiplier;
+        } else if (settings.importanceMethod == 4) {
+            this.clearviewShader.uniforms.u_importanceStrength.value = settings.normalDistanceMultiplier;
         }
         this.clearviewShader.uniforms.u_worldSpaceLight.value = settings.worldSpaceLighting;
         this.clearviewShader.uniforms.u_color1.value = settings.isoColor1;
         this.clearviewShader.uniforms.u_color2.value = settings.isoColor2;
+        this.clearviewShader.uniforms.u_isovalue2.value = settings.isovalue2;
 
-        // this.updateRaymarcherUniforms(this.isosurfaceShader, settings);
+        this.raymarcher.updateRaymarcherUniforms(this.clearviewShader, settings);
     }
 
     resize(realWidth, realHeight) {
