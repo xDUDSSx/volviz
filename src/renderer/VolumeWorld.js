@@ -63,6 +63,7 @@ export default class VolumeWorld {
 
             let rendererSize = new THREE.Vector2();
             this.renderer.getSize(rendererSize);
+            rendererSize = rendererSize.multiplyScalar(this.renderer.getPixelRatio());
 
             this.clearview = new Clearview(this.raymarcher, rendererSize, volumeBox, this.settings);
             
