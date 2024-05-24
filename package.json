@@ -1,10 +1,10 @@
 {
-  "name": "three-seed",
-  "version": "0.4.0",
-  "description": "Three.js starter project boilerplate bundled with webpack",
+  "name": "volviz",
+  "version": "1.0.0",
+  "description": "A direct volume renderer using Three.js",
   "keywords": [
     "webgl",
-    "boilerplate",
+    "direct volume rendering",
     "three.js",
     "es6",
     "webpack"

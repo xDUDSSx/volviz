@@ -251,6 +251,17 @@ export default class UI {
         clearview.hidden = false;
         importanceAware.hidden = true;
         contextPreserve.hidden = true;
+
+        let githubButtonsScript = document.createElement("script");
+        githubButtonsScript.setAttribute("src","https://buttons.github.io/buttons.js");
+        document.head.appendChild(githubButtonsScript);
+    
+        let cornerElem = document.createElement("div");
+        cornerElem.setAttribute("id", "corner-div");
+        cornerElem.innerHTML = `
+        <a id="github-button" class="github-button" href="https://github.com/xDUDSSx/volviz" data-color-scheme="no-preference: light; light: light; dark: dark;" data-size="large" aria-label="Open xDUDSSx/volviz on GitHub">GitHub</a>
+        `;
+        document.body.appendChild(cornerElem);
     }
 
     updateTransferFunction(settings) {
